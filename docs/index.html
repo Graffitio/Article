@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Articles — Ian Jung</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --ink: #1A1A2E; --paper: #F8F9FA; --warm-mid: #A8BDD4;
+      --accent: #5B7FA6; --accent2: #2B2D42; --rule: #DDE3EA;
+      --serif: 'Noto Serif KR', serif; --mono: 'Space Mono', monospace;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--paper); color: var(--ink);
+      font-family: var(--serif); line-height: 1.8;
+      min-height: 100vh; overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+    body::before {
+      content: ''; position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 1000; opacity: 0.5;
+    }
+
+    .page-wrap { max-width: 800px; margin: 0 auto; padding: 0 2rem; }
+
+    /* ── HEADER ── */
+    header { padding: 4.5rem 0 3.5rem; border-bottom: 1px solid var(--rule); margin-bottom: 3.5rem; }
+    .site-label {
+      font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.3em;
+      text-transform: uppercase; color: var(--accent); display: block; margin-bottom: 1.2rem;
+    }
+    .site-title {
+      font-size: clamp(2rem, 5vw, 3.2rem); font-weight: 700;
+      line-height: 1.1; letter-spacing: -0.03em; color: var(--ink);
+    }
+    .site-title span { color: var(--accent); }
+    .site-desc {
+      font-family: var(--mono); font-size: 0.72rem; color: #5B6A7E;
+      margin-top: 1.2rem; letter-spacing: 0.04em; line-height: 1.7;
+    }
+    .header-meta {
+      display: flex; align-items: center; gap: 1.2rem;
+      margin-top: 2rem; font-family: var(--mono); font-size: 0.62rem;
+      color: #8E97A8; letter-spacing: 0.12em; text-transform: uppercase;
+    }
+    .header-meta::before { content: ''; flex: none; width: 24px; height: 1px; background: var(--rule); }
+
+    /* ── FILTER BAR ── */
+    .filter-bar {
+      display: flex; gap: 0.6rem; flex-wrap: wrap;
+      margin-bottom: 2.8rem;
+    }
+    .filter-btn {
+      font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.12em;
+      text-transform: uppercase; padding: 0.4rem 0.9rem;
+      border: 1px solid var(--rule); background: transparent;
+      color: #8E97A8; cursor: pointer; border-radius: 2px;
+      transition: all 0.18s ease;
+    }
+    .filter-btn:hover, .filter-btn.active {
+      background: var(--accent); border-color: var(--accent);
+      color: #fff;
+    }
+
+    /* ── ARTICLE LIST ── */
+    .article-count {
+      font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.15em;
+      text-transform: uppercase; color: #8E97A8; margin-bottom: 1.6rem;
+    }
+
+    .article-item {
+      display: grid; grid-template-columns: 1fr auto;
+      gap: 1rem 2rem; align-items: start;
+      padding: 2rem 0; border-bottom: 1px solid var(--rule);
+      text-decoration: none; color: inherit;
+      transition: transform 0.2s ease;
+      position: relative;
+    }
+    .article-item::before {
+      content: ''; position: absolute;
+      left: -2rem; top: 0; bottom: 0; width: 3px;
+      background: var(--accent); opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+    .article-item:hover { transform: translateX(6px); }
+    .article-item:hover::before { opacity: 1; }
+
+    .article-left { min-width: 0; }
+    .article-right { text-align: right; flex-shrink: 0; }
+
+    .article-tags {
+      display: flex; gap: 0.5rem; flex-wrap: wrap;
+      margin-bottom: 0.7rem;
+    }
+    .tag {
+      font-family: var(--mono); font-size: 0.58rem; letter-spacing: 0.1em;
+      text-transform: uppercase; padding: 0.2rem 0.6rem;
+      background: #EDF2F7; color: var(--accent); border-radius: 2px;
+    }
+    .tag.ai { background: #E8EEF3; color: #2B2D42; }
+    .tag.llm { background: #EDF2F7; color: #5B7FA6; }
+    .tag.tips { background: #E8F4EE; color: #2D6A4F; }
+
+    .article-title {
+      font-size: 1.25rem; font-weight: 700; line-height: 1.35;
+      letter-spacing: -0.01em; color: var(--ink);
+      margin-bottom: 0.7rem;
+      transition: color 0.18s ease;
+    }
+    .article-item:hover .article-title { color: var(--accent); }
+
+    .article-excerpt {
+      font-size: 0.88rem; font-weight: 300; color: #5B6A7E;
+      line-height: 1.7; max-width: 520px;
+    }
+
+    .article-date {
+      font-family: var(--mono); font-size: 0.62rem;
+      color: #8E97A8; letter-spacing: 0.08em;
+      white-space: nowrap; margin-top: 0.3rem;
+    }
+    .article-arrow {
+      font-size: 0.8rem; color: var(--accent); opacity: 0;
+      margin-top: 0.5rem; transition: opacity 0.18s ease;
+      display: block;
+    }
+    .article-item:hover .article-arrow { opacity: 1; }
+
+    /* ── EMPTY STATE ── */
+    .empty { padding: 3rem 0; color: #8E97A8; font-family: var(--mono); font-size: 0.75rem; }
+
+    /* ── FOOTER ── */
+    footer { margin-top: 5rem; padding: 2rem 0 4rem; border-top: 1px solid var(--rule); }
+    .footer-inner {
+      display: flex; justify-content: space-between;
+      align-items: center; flex-wrap: wrap; gap: 1rem;
+    }
+    .footer-brand {
+      font-family: var(--mono); font-size: 0.62rem;
+      letter-spacing: 0.2em; text-transform: uppercase; color: #8E97A8;
+    }
+    .footer-tag {
+      font-family: var(--mono); font-size: 0.58rem;
+      color: var(--warm-mid); letter-spacing: 0.12em;
+    }
+
+    /* ── FADE IN ── */
+    .fade-in { opacity: 0; transform: translateY(16px); animation: fadeUp 0.6s ease forwards; }
+    .fade-in:nth-child(1) { animation-delay: 0.05s; }
+    .fade-in:nth-child(2) { animation-delay: 0.12s; }
+    .fade-in:nth-child(3) { animation-delay: 0.19s; }
+    .fade-in:nth-child(4) { animation-delay: 0.26s; }
+    .fade-in:nth-child(5) { animation-delay: 0.33s; }
+    .fade-in:nth-child(6) { animation-delay: 0.40s; }
+    @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+
+    @media (max-width: 560px) {
+      .article-item { grid-template-columns: 1fr; }
+      .article-right { text-align: left; }
+      .site-title { font-size: 2rem; }
+    }
+  </style>
+</head>
+<body>
+<div class="page-wrap">
+
+  <header class="fade-in">
+    <span class="site-label">Ian Jung · Writing</span>
+    <h1 class="site-title">Articles<span>.</span></h1>
+    <p class="site-desc">AI · 인지 구조 · 프롬프트 설계 · LLM 아키텍처에 관한 글 모음</p>
+    <div class="header-meta">
+      <span id="total-count">0 articles</span>
+    </div>
+  </header>
+
+  <div class="filter-bar fade-in" id="filter-bar">
+    <button class="filter-btn active" data-filter="all">All</button>
+    <button class="filter-btn" data-filter="ai">AI</button>
+    <button class="filter-btn" data-filter="llm">LLM</button>
+  </div>
+
+  <div class="article-count fade-in" id="article-count"></div>
+
+  <div id="article-list">
+    <!-- 아티클 카드들 -->
+    <a class="article-item fade-in" href="ai-anchoring-rethemed.html" data-tags="ai llm">
+      <div class="article-left">
+        <div class="article-tags">
+          <span class="tag ai">AI</span>
+          <span class="tag llm">LLM</span>
+        </div>
+        <div class="article-title">AI는 왜 내 말을 까먹을까</div>
+        <div class="article-excerpt">초기 편향성에 의거한 앵커링 베이시스 형성과 세션 종속성의 인지 구조. 대화가 길어질수록 AI가 엉뚱한 방향으로 흘러가는 이유를 구조적으로 분석한다.</div>
+      </div>
+      <div class="article-right">
+        <div class="article-date">2025</div>
+        <span class="article-arrow">→</span>
+      </div>
+    </a>
+
+    <!-- 새 아티클은 위 형식으로 추가하세요 -->
+  </div>
+
+  <footer>
+    <div class="footer-inner">
+      <span class="footer-brand">Ian Jung · Articles</span>
+      <span class="footer-tag">AI · LLM · Prompt Design</span>
+    </div>
+  </footer>
+
+</div>
+
+<script>
+  // 총 아티클 수
+  const items = document.querySelectorAll('.article-item');
+  document.getElementById('total-count').textContent = items.length + ' articles';
+
+  // 필터
+  const btns = document.querySelectorAll('.filter-btn');
+  const countEl = document.getElementById('article-count');
+
+  function updateCount(visible) {
+    countEl.textContent = visible + ' articles';
+  }
+
+  updateCount(items.length);
+
+  btns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      btns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const filter = btn.dataset.filter;
+      let visible = 0;
+      items.forEach(item => {
+        const tags = item.dataset.tags || '';
+        const show = filter === 'all' || tags.includes(filter);
+        item.style.display = show ? 'grid' : 'none';
+        if (show) visible++;
+      });
+      updateCount(visible);
+    });
+  });
+</script>
+</body>
+</html>
