@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI는 왜 내 말을 까먹을까</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --ink: #1A1A2E; --paper: #F8F9FA; --warm-mid: #A8BDD4;
+      --accent: #5B7FA6; --accent2: #2B2D42; --rule: #DDE3EA;
+      --serif: 'Noto Serif KR', serif; --mono: 'Space Mono', monospace;
+    }
+    html { scroll-behavior: smooth; }
+    body { background: var(--paper); color: var(--ink); font-family: var(--serif); line-height: 1.9; min-height: 100vh; overflow-x: hidden; }
+    body::before { content: ''; position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E"); pointer-events: none; z-index: 1000; opacity: 0.6; }
+    .page-wrap { max-width: 760px; margin: 0 auto; padding: 0 2rem; }
+    header { padding: 4rem 0 0; position: relative; }
+    .kicker { font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--accent); display: block; margin-bottom: 1.8rem; }
+    .headline { font-size: clamp(2.4rem, 6vw, 4rem); font-weight: 700; line-height: 1.15; letter-spacing: -0.02em; margin-bottom: 0.4rem; }
+    .headline em { font-style: normal; color: var(--accent); position: relative; }
+    .headline em::after { content: ''; position: absolute; left: 0; bottom: 2px; width: 100%; height: 3px; background: var(--accent); opacity: 0.3; }
+    .subhead { font-family: var(--mono); font-size: 0.72rem; line-height: 1.6; color: #5B6A7E; margin: 1.6rem 0 2rem; max-width: 560px; letter-spacing: 0.05em; }
+    .byline-row { display: flex; align-items: center; gap: 1.5rem; padding: 1.2rem 0; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); margin-bottom: 3.5rem; }
+    .byline-tag { font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.18em; text-transform: uppercase; color: #8E97A8; }
+    .dot { color: var(--warm-mid); }
+    .lead-block { position: relative; margin-bottom: 3rem; }
+    .lead-letter { float: left; font-size: 5.5rem; font-weight: 700; line-height: 0.82; margin: 0.1em 0.12em 0 0; color: var(--accent); }
+    .lead-text { font-size: 1.12rem; font-weight: 300; color: #3D4557; }
+    section { margin-bottom: 2.8rem; }
+    h2 { font-size: 1.3rem; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 1rem; padding-left: 1rem; border-left: 3px solid var(--accent); }
+    p { font-size: 1rem; font-weight: 300; color: #3D4557; margin-bottom: 1.1rem; }
+    .pull-quote { margin: 3rem -1rem; padding: 2.2rem 2.5rem; background: var(--accent2); color: #e8e0d0; position: relative; overflow: hidden; }
+    .pull-quote::before { content: '"'; position: absolute; top: -0.6rem; left: 1.2rem; font-size: 9rem; font-weight: 700; color: rgba(255,255,255,0.06); line-height: 1; pointer-events: none; }
+    .pull-quote p { font-size: 1.2rem; font-weight: 400; color: #dcd4c6; line-height: 1.75; margin: 0; position: relative; z-index: 1; }
+    .term-box { background: #EDF2F7; border: 1px solid var(--rule); padding: 1.8rem 2rem; margin: 2.5rem 0; position: relative; }
+    .term-box::before { content: 'KEY CONCEPT'; font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.2em; color: var(--accent); display: block; margin-bottom: 0.8rem; }
+    .term-box h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--accent2); }
+    .term-box p { font-size: 0.92rem; margin: 0; color: #3D4557; }
+    .diagram { margin: 2.5rem 0; font-family: var(--mono); }
+    .diagram-title { font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: #8E97A8; margin-bottom: 1rem; }
+    .flow-steps { display: flex; flex-direction: column; gap: 0; }
+    .flow-step { display: flex; align-items: stretch; gap: 1rem; }
+    .step-line { display: flex; flex-direction: column; align-items: center; width: 28px; flex-shrink: 0; }
+    .step-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); flex-shrink: 0; margin-top: 4px; }
+    .step-connector { width: 1px; flex: 1; background: var(--rule); margin: 3px 0; }
+    .flow-step:last-child .step-connector { display: none; }
+    .step-content { padding-bottom: 1.4rem; flex: 1; }
+    .step-label { font-size: 0.65rem; letter-spacing: 0.15em; color: var(--accent); text-transform: uppercase; }
+    .step-desc { font-size: 0.82rem; color: #3D4557; line-height: 1.55; margin-top: 0.2rem; }
+    .insight-list { counter-reset: insight; list-style: none; margin: 1.5rem 0; }
+    .insight-list li { counter-increment: insight; display: flex; gap: 1.2rem; margin-bottom: 1rem; align-items: flex-start; }
+    .insight-list li::before { content: counter(insight, decimal-leading-zero); font-family: var(--mono); font-size: 0.75rem; color: var(--accent); flex-shrink: 0; margin-top: 0.15em; }
+    .insight-list li span { font-size: 0.95rem; color: #3D4557; line-height: 1.7; }
+    footer { margin-top: 5rem; padding: 2rem 0 4rem; border-top: 1px solid var(--rule); }
+    .footer-inner { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+    .footer-brand { font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: #8E97A8; }
+    .footer-tag { font-family: var(--mono); font-size: 0.6rem; color: var(--warm-mid); letter-spacing: 0.15em; }
+    .fade-in { opacity: 0; transform: translateY(18px); animation: fadeUp 0.7s ease forwards; }
+    .fade-in:nth-child(1) { animation-delay: 0.05s; } .fade-in:nth-child(2) { animation-delay: 0.15s; } .fade-in:nth-child(3) { animation-delay: 0.25s; } .fade-in:nth-child(4) { animation-delay: 0.35s; }
+    @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+    hr.section-rule { border: none; border-top: 1px solid var(--rule); margin: 2.5rem 0; }
+    @media (max-width: 520px) { .pull-quote { margin: 2.5rem -2rem; padding: 1.8rem 1.8rem; } .headline { font-size: 2.2rem; } }
+  </style>
+</head>
+<body>
+<div class="page-wrap">
+  <header>
+    <div class="fade-in">
+      <span class="kicker">AI · Cognition · Context Architecture</span>
+      <h1 class="headline">AI는 왜 내 말을<br><em>까먹을까</em></h1>
+      <p class="subhead">초기 편향성에 의거한 앵커링 베이시스 형성과<br>세션 종속성의 인지 구조</p>
+      <div class="byline-row">
+        <span class="byline-tag">Essay</span>
+        <span class="dot">·</span>
+        <span class="byline-tag">LLM Architecture</span>
+        <span class="dot">·</span>
+        <span class="byline-tag">2025</span>
+        <span class="dot">·</span>
+        <span class="byline-tag">by Ian Jung</span>
+      </div>
+    </div>
+  </header>
+  <main>
+    <div class="lead-block fade-in">
+      <span class="lead-letter">대</span>
+      <p class="lead-text">화가 길어질수록 AI는 처음에 했던 말을 잊고, 전혀 다른 방향으로 흘러간다. 단순한 버그가 아니다. 이 현상의 뿌리는 대형 언어 모델이 의미를 처리하는 방식 자체에 있다.</p>
+    </div>
+    <section class="fade-in">
+      <h2>컨텍스트 윈도우: 기억이 아닌 시야</h2>
+      <p>인간의 기억과 AI의 '기억'은 근본적으로 다르다. LLM은 과거 대화를 저장하는 장기 기억 구조가 없다. 대신 <strong>컨텍스트 윈도우(context window)</strong>라는 제한된 토큰 공간 안에서만 정보를 처리한다. 이 창 밖으로 밀려난 내용은 말 그대로 '존재하지 않게' 된다.</p>
+      <p>따라서 대화가 길어지면, 초반에 나눈 지시나 배경 설명이 윈도우 밖으로 밀려나며 모델은 그 내용을 참조할 수 없게 된다. AI가 "까먹는" 것이 아니라, 처음부터 기억할 구조가 아닌 것이다.</p>
+    </section>
+    <div class="term-box">
+      <h3>앵커링 베이시스(Anchoring Basis)</h3>
+      <p>대화 초반에 형성된 맥락, 역할, 어조, 방향성이 이후 전체 응답의 기준점(basis)으로 고정되는 현상. 앵커가 강할수록 이후 입력이 그에 맞게 재해석되며, 사용자의 의도가 왜곡될 수 있다.</p>
+    </div>
+    <section>
+      <h2>앵커링 베이시스: 첫인상이 전부를 결정한다</h2>
+      <p>Transformer 기반 모델은 입력 시퀀스를 처리할 때 어텐션 메커니즘을 통해 각 토큰 간의 관계 가중치를 계산한다. 이 구조에서 <strong>초기 토큰(대화의 앞부분)</strong>은 이후 토큰들에 대해 지속적이고 광범위한 어텐션 가중치를 형성한다.</p>
+      <p>즉, 대화 초반에 "당신은 요리사입니다"라고 정의했다면, 이후 기술 질문을 해도 모델은 그 앵커 위에서 답변을 구성하려 한다. 사용자가 방향을 바꾸려 해도, 앵커는 소리 없이 응답을 잡아당긴다.</p>
+    </section>
+    <div class="pull-quote">
+      <p>모델은 대화를 '이해'하는 것이 아니라, 지금까지의 토큰 시퀀스에서 가장 확률 높은 다음 토큰을 생성할 뿐이다. '기억'처럼 보이는 것은 컨텍스트 안에 있는 동안만 유효한 통계적 패턴이다.</p>
+    </div>
+    <section>
+      <h2>초기 편향성: 확률의 경로 의존</h2>
+      <p>LLM의 응답 생성은 본질적으로 <strong>조건부 확률의 누적 계산</strong>이다. 각 토큰은 이전 토큰 전체를 조건으로 생성되므로, 초반에 형성된 확률 분포가 이후 모든 생성에 영향을 미친다.</p>
+      <p>이를 <em>초기 편향성(initial bias)</em>이라 부른다. 대화가 특정 어조, 도메인, 관점으로 시작되면 모델의 확률 공간 자체가 그 방향으로 편향된다. 중립적인 질문조차도 초기 편향이 강하면 편향된 방식으로 해석된다.</p>
+    </section>
+    <div class="diagram">
+      <p class="diagram-title">세션 의존성의 형성 과정</p>
+      <div class="flow-steps">
+        <div class="flow-step">
+          <div class="step-line"><div class="step-dot"></div><div class="step-connector"></div></div>
+          <div class="step-content"><div class="step-label">01 · Anchor Formation</div><div class="step-desc">초기 프롬프트가 어텐션 레이어에서 높은 가중치를 형성. 역할·도메인·어조가 고정된다.</div></div>
+        </div>
+        <div class="flow-step">
+          <div class="step-line"><div class="step-dot"></div><div class="step-connector"></div></div>
+          <div class="step-content"><div class="step-label">02 · Basis Propagation</div><div class="step-desc">이후 입력은 앵커를 기준으로 재해석. 모델은 새 지시보다 초기 패턴을 우선한다.</div></div>
+        </div>
+        <div class="flow-step">
+          <div class="step-line"><div class="step-dot"></div><div class="step-connector"></div></div>
+          <div class="step-content"><div class="step-label">03 · Context Overflow</div><div class="step-desc">대화가 길어지며 초반 명시적 지시가 윈도우 밖으로 밀려남. 앵커만 확률 공간에 잔류.</div></div>
+        </div>
+        <div class="flow-step">
+          <div class="step-line"><div class="step-dot"></div></div>
+          <div class="step-content"><div class="step-label">04 · Session Lock-in</div><div class="step-desc">세션이 특정 방향에 종속. 사용자의 수정 시도는 편향된 확률 공간에서 흡수된다.</div></div>
+        </div>
+      </div>
+    </div>
+    <section>
+      <h2>세션 종속성: 탈출하기 어려운 이유</h2>
+      <p>한번 형성된 앵커 베이시스는 같은 세션 안에서 교정하기 어렵다. 사용자가 "지금부터 다르게 해줘"라고 요청해도, 그 요청 자체가 기존 컨텍스트 위에서 처리되기 때문이다. 이것이 <strong>세션 종속성(session dependency)</strong>이다.</p>
+      <p>실용적인 해결책은 간단하다. 새 세션을 시작하거나, 시스템 프롬프트 수준에서 앵커를 재설정하는 것이다. 긴 대화에서 방향 전환을 원한다면, 이전 컨텍스트를 명시적으로 요약해 새 프롬프트에 포함시키는 방법이 가장 효과적이다.</p>
+    </section>
+    <hr class="section-rule">
+    <section>
+      <h2>실용적 시사점</h2>
+      <ul class="insight-list">
+        <li><span><strong>첫 프롬프트가 가장 중요하다.</strong> 세션의 앵커는 초반에 형성된다. 역할, 목적, 제약을 첫 메시지에서 명확히 정의하라.</span></li>
+        <li><span><strong>방향 전환이 필요하면 새 세션을 시작하라.</strong> 기존 컨텍스트 위에서 수정을 반복하는 것은 비효율적이며 오히려 혼선을 가중한다.</span></li>
+        <li><span><strong>긴 대화에서는 주기적으로 재앵커링하라.</strong> "지금까지의 요약: ..."과 같이 핵심 지시를 다시 주입하면 컨텍스트 드리프트를 줄일 수 있다.</span></li>
+        <li><span><strong>AI의 '망각'을 구조적으로 이해하라.</strong> 이것은 결함이 아니라 설계의 특성이다. 컨텍스트를 의도적으로 설계하면 예측 가능한 결과를 얻을 수 있다.</span></li>
+      </ul>
+    </section>
+  </main>
+  <footer>
+    <div class="footer-inner">
+      <span class="footer-brand">AI Cognition Series</span>
+      <span class="footer-tag">Context · Anchor · Session · LLM</span>
+    </div>
+  </footer>
+</div>
+</body>
+</html>
