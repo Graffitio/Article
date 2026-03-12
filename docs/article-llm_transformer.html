@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LLM의 기본 원리 : 트랜스포머</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --ink: #1A1A2E; --paper: #F8F9FA; --warm-mid: #A8BDD4;
+      --accent: #5B7FA6; --accent2: #2B2D42; --rule: #DDE3EA;
+      --serif: 'Noto Serif KR', serif; --mono: 'Space Mono', monospace;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--paper); color: var(--ink);
+      font-family: var(--serif); line-height: 1.9;
+      min-height: 100vh; overflow-x: hidden;
+    }
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 1000; opacity: 0.6;
+    }
+    .page-wrap { max-width: 760px; margin: 0 auto; padding: 0 2rem; }
+
+    /* ── HEADER ── */
+    header { padding: 4rem 0 0; position: relative; }
+    .kicker {
+      font-family: var(--mono); font-size: 0.7rem;
+      letter-spacing: 0.25em; text-transform: uppercase;
+      color: var(--accent); display: block; margin-bottom: 1.8rem;
+    }
+    .headline {
+      font-size: clamp(2.4rem, 6vw, 4rem); font-weight: 700;
+      line-height: 1.15; letter-spacing: -0.02em; margin-bottom: 0.4rem;
+    }
+    .headline em {
+      font-style: normal; color: var(--accent); position: relative;
+    }
+    .headline em::after {
+      content: ''; position: absolute;
+      left: 0; bottom: 2px; width: 100%; height: 3px;
+      background: var(--accent); opacity: 0.3;
+    }
+    .subhead {
+      font-family: var(--mono); font-size: 0.72rem; line-height: 1.6;
+      color: #5B6A7E; margin: 1.6rem 0 2rem;
+      max-width: 560px; letter-spacing: 0.05em;
+    }
+    .byline-row {
+      display: flex; align-items: center; gap: 1.5rem;
+      padding: 1.2rem 0;
+      border-top: 1px solid var(--rule);
+      border-bottom: 1px solid var(--rule);
+      margin-bottom: 3.5rem; flex-wrap: wrap;
+    }
+    .byline-tag {
+      font-family: var(--mono); font-size: 0.65rem;
+      letter-spacing: 0.18em; text-transform: uppercase; color: #8E97A8;
+    }
+    .dot { color: var(--warm-mid); }
+
+    /* ── LEAD ── */
+    .lead-block { position: relative; margin-bottom: 3rem; }
+    .lead-letter {
+      float: left; font-size: 5.5rem; font-weight: 700;
+      line-height: 0.82; margin: 0.1em 0.12em 0 0; color: var(--accent);
+    }
+    .lead-text { font-size: 1.12rem; font-weight: 300; color: #3D4557; }
+
+    /* ── BODY ── */
+    section { margin-bottom: 2.8rem; }
+    h2 {
+      font-size: 1.3rem; font-weight: 700;
+      letter-spacing: -0.01em; margin-bottom: 1rem;
+      padding-left: 1rem; border-left: 3px solid var(--accent);
+    }
+    p { font-size: 1rem; font-weight: 300; color: #3D4557; margin-bottom: 1.1rem; }
+    strong { font-weight: 700; color: var(--ink); }
+
+    /* ── PULL QUOTE ── */
+    .pull-quote {
+      margin: 3rem -1rem; padding: 2.2rem 2.5rem;
+      background: var(--accent2); color: #e8e0d0;
+      position: relative; overflow: hidden;
+    }
+    .pull-quote::before {
+      content: '"'; position: absolute;
+      top: -0.6rem; left: 1.2rem;
+      font-size: 9rem; font-weight: 700;
+      color: rgba(255,255,255,0.06); line-height: 1; pointer-events: none;
+    }
+    .pull-quote p {
+      font-size: 1.2rem; font-weight: 400;
+      color: #dcd4c6; line-height: 1.75;
+      margin: 0; position: relative; z-index: 1;
+    }
+
+    /* ── TERM BOX ── */
+    .term-box {
+      background: #EDF2F7; border: 1px solid var(--rule);
+      padding: 1.8rem 2rem; margin: 2.5rem 0; position: relative;
+    }
+    .term-box::before {
+      content: 'KEY CONCEPT'; font-family: var(--mono);
+      font-size: 0.6rem; letter-spacing: 0.2em;
+      color: var(--accent); display: block; margin-bottom: 0.8rem;
+    }
+    .term-box h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--accent2); }
+    .term-box p { font-size: 0.92rem; margin: 0; color: #3D4557; }
+
+    /* ── TABLE ── */
+    .data-table { margin: 2.5rem 0; font-family: var(--mono); }
+    .data-table-title {
+      font-size: 0.65rem; letter-spacing: 0.2em;
+      text-transform: uppercase; color: #8E97A8; margin-bottom: 1rem;
+    }
+    .data-table table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+    .data-table thead th {
+      text-align: left; font-weight: 700;
+      color: var(--accent2); font-size: 0.68rem;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      padding: 0.6rem 0.8rem; border-bottom: 2px solid var(--accent2);
+    }
+    .data-table tbody td {
+      padding: 0.7rem 0.8rem; color: #3D4557; font-size: 0.82rem;
+      border-bottom: 1px solid var(--rule); vertical-align: top;
+    }
+    .data-table tbody tr:hover td { background: #EDF2F7; }
+
+    /* ── FLOW DIAGRAM ── */
+    .diagram { margin: 2.5rem 0; font-family: var(--mono); }
+    .diagram-title {
+      font-size: 0.65rem; letter-spacing: 0.2em;
+      text-transform: uppercase; color: #8E97A8; margin-bottom: 1rem;
+    }
+    .flow-steps { display: flex; flex-direction: column; gap: 0; }
+    .flow-step { display: flex; align-items: stretch; gap: 1rem; }
+    .step-line { display: flex; flex-direction: column; align-items: center; width: 28px; flex-shrink: 0; }
+    .step-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); flex-shrink: 0; margin-top: 4px; }
+    .step-connector { width: 1px; flex: 1; background: var(--rule); margin: 3px 0; }
+    .flow-step:last-child .step-connector { display: none; }
+    .step-content { padding-bottom: 1.4rem; flex: 1; }
+    .step-label { font-size: 0.65rem; letter-spacing: 0.15em; color: var(--accent); text-transform: uppercase; }
+    .step-desc { font-size: 0.82rem; color: #3D4557; line-height: 1.55; margin-top: 0.2rem; }
+
+    /* ── INSIGHT LIST ── */
+    .insight-list { counter-reset: insight; list-style: none; margin: 1.5rem 0; }
+    .insight-list li { counter-increment: insight; display: flex; gap: 1.2rem; margin-bottom: 1rem; align-items: flex-start; }
+    .insight-list li::before {
+      content: counter(insight, decimal-leading-zero);
+      font-family: var(--mono); font-size: 0.75rem;
+      color: var(--accent); flex-shrink: 0; margin-top: 0.15em;
+    }
+    .insight-list li span { font-size: 0.95rem; color: #3D4557; line-height: 1.7; }
+
+    /* ── GLOSSARY ── */
+    .glossary-section { margin-bottom: 2.8rem; }
+    .glossary-section h2 { margin-bottom: 1.4rem; }
+    .glossary-item { padding: 1rem 0; border-bottom: 1px solid var(--rule); }
+    .glossary-item:last-child { border-bottom: none; }
+    .glossary-term { font-family: var(--mono); font-size: 0.88rem; font-weight: 700; color: var(--accent2); margin-bottom: 0.2rem; }
+    .glossary-en { font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.1em; color: #8E97A8; margin-bottom: 0.4rem; }
+    .glossary-def { font-size: 0.9rem; color: #3D4557; line-height: 1.7; margin: 0; }
+
+    /* ── FOOTER ── */
+    footer { margin-top: 5rem; padding: 2rem 0 4rem; border-top: 1px solid var(--rule); }
+    .footer-inner { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+    .footer-brand { font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: #8E97A8; }
+    .footer-tag { font-family: var(--mono); font-size: 0.6rem; color: var(--warm-mid); letter-spacing: 0.15em; }
+
+    /* ── ANIMATIONS ── */
+    .fade-in { opacity: 0; transform: translateY(18px); animation: fadeUp 0.7s ease forwards; }
+    .fade-in:nth-child(1) { animation-delay: 0.05s; }
+    .fade-in:nth-child(2) { animation-delay: 0.15s; }
+    .fade-in:nth-child(3) { animation-delay: 0.25s; }
+    .fade-in:nth-child(4) { animation-delay: 0.35s; }
+    @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+
+    hr.section-rule { border: none; border-top: 1px solid var(--rule); margin: 2.5rem 0; }
+
+    /* ── REFERENCE ── */
+    .ref-section { margin-bottom: 2rem; }
+    .ref-section h2 { margin-bottom: 1rem; }
+    .ref-item { font-family: var(--mono); font-size: 0.78rem; line-height: 1.7; color: #5B6A7E; padding: 0.8rem 0; border-bottom: 1px solid var(--rule); }
+    .ref-item:last-child { border-bottom: none; }
+    .ref-item em { font-style: italic; color: var(--accent); }
+
+    @media (max-width: 520px) {
+      .pull-quote { margin: 2.5rem -2rem; padding: 1.8rem 1.8rem; }
+      .headline { font-size: 2.2rem; }
+    }
+  </style>
+</head>
+<body>
+<div class="page-wrap">
+
+  <header>
+    <div class="fade-in">
+      <span class="kicker">AI · Deep Dive · LLM Architecture</span>
+      <h1 class="headline">LLM의 기본 원리<br>: <em>트랜스포머</em></h1>
+      <p class="subhead">트랜스포머 아키텍처의 핵심 원리 —<br>어텐션 메커니즘부터 LLM 학습까지</p>
+      <div class="byline-row">
+        <span class="byline-tag">Technical Essay</span>
+        <span class="dot">·</span>
+        <span class="byline-tag">Transformer · Attention</span>
+        <span class="dot">·</span>
+        <span class="byline-tag">2026</span>
+        <span class="dot">·</span>
+        <span class="byline-tag">by Ian Jung</span>
+      </div>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- LEAD -->
+    <div class="lead-block fade-in">
+      <p class="lead-text">트랜스포머(Transformer)는 2017년 Google 연구팀이 번역을 위해 제안한 신경망 구조다. 그러나 오늘날 이것은 ChatGPT, Claude, Gemini 같은 대형 언어 모델 전체의 심장이 되었다. 어떻게 하나의 아이디어가 AI 혁명을 이끌었는가.</p>
+    </div>
+
+    <!-- SECTION 1 -->
+    <section class="fade-in">
+      <h2>트랜스포머 이전 — 순서대로 읽던 시대</h2>
+      <p>트랜스포머가 등장하기 전, 자연어 처리의 주류는 <strong>RNN(순환 신경망, Recurrent Neural Network)</strong>이었다. RNN은 문장을 왼쪽에서 오른쪽으로 한 단어씩 처리한다. 마치 책을 한 글자씩 손으로 짚어가며 읽는 것과 같다.</p>
+      <p>이 방식에는 두 가지 치명적 약점이 있었다. 첫째, 문장이 길어질수록 앞에서 읽은 내용을 잊어버린다 — <strong>장기 의존성 문제(Long-term Dependency Problem)</strong>. 둘째, 단어를 반드시 순서대로 처리해야 하므로 병렬화가 불가능해 학습이 느렸다.</p>
+    </section>
+
+    <div class="term-box">
+      <h3>장기 의존성 문제 (Long-term Dependency Problem)</h3>
+      <p>긴 문장에서 앞쪽의 정보가 뒤쪽 처리에 제대로 전달되지 않는 현상. "나는 어제 도서관에서 책을 빌렸는데, 그 책의 저자가 쓴 또 다른 작품이…"에서 RNN은 "그 책"이 무엇인지 기억하기 어렵다. 트랜스포머의 어텐션이 이를 근본적으로 해결했다.</p>
+    </div>
+
+    <!-- SECTION 2 -->
+    <section>
+      <h2>어텐션 — "어디에 집중할지"를 계산한다</h2>
+      <p>트랜스포머의 혁신은 단순하다. 단어를 하나씩 순서대로 읽는 대신, <strong>문장 전체를 한꺼번에 보면서 단어 간 관련도를 동시에 계산</strong>한다. 이것이 어텐션(Attention) 메커니즘이다.</p>
+      <p>사람이 긴 글을 읽을 때 모든 단어에 동등하게 주의를 기울이지 않는 것처럼, 어텐션은 각 단어가 다른 단어와 얼마나 관련 있는지를 수치로 계산해 중요한 단어에 더 집중하도록 만든다.</p>
+      <p>이 계산에는 세 가지 벡터가 사용된다. <strong>Query(Q)</strong>는 "나는 무엇을 찾고 있나"를, <strong>Key(K)</strong>는 "나는 어떤 정보를 갖고 있나"를, <strong>Value(V)</strong>는 "실제로 전달할 정보"를 담는다. Q와 K를 비교해 관련도 점수를 계산하고, 그 점수에 따라 V를 가중합산한다.</p>
+    </section>
+
+    <div class="pull-quote">
+      <p>어텐션의 핵심은 병렬성이다. RNN이 단어를 시간 순서로 처리하는 동안, 어텐션은 문장의 모든 단어 쌍 관계를 동시에 계산한다. 이것이 트랜스포머를 빠르게, 그리고 강하게 만든 이유다.</p>
+    </div>
+
+    <!-- SECTION 3 -->
+    <section>
+      <h2>멀티헤드 어텐션 — 여러 눈으로 동시에</h2>
+      <p><strong>멀티헤드 어텐션(Multi-Head Attention)</strong>은 어텐션을 여러 개 병렬로 수행하는 방식이다. 각 "헤드(head)"는 서로 다른 관점에서 단어 간 관계를 포착한다. 하나의 헤드가 문법적 관계를 보는 동안, 다른 헤드는 의미적 유사성을, 또 다른 헤드는 대명사-명사 지시 관계를 분석한다.</p>
+      <p>각 헤드의 결과를 합치면 단 하나의 어텐션으로는 불가능한 풍부한 언어 이해가 완성된다. 이것이 트랜스포머가 복잡한 언어 패턴을 정교하게 포착하는 핵심 이유다.</p>
+    </section>
+
+    <div class="data-table">
+      <p class="data-table-title">Q / K / V 벡터의 역할</p>
+      <table>
+        <thead>
+          <tr>
+            <th>벡터</th>
+            <th>역할</th>
+            <th>비유</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Query (Q)</strong></td>
+            <td>나는 무엇을 찾고 있나?</td>
+            <td>검색어</td>
+          </tr>
+          <tr>
+            <td><strong>Key (K)</strong></td>
+            <td>나는 어떤 정보를 갖고 있나?</td>
+            <td>책의 목차</td>
+          </tr>
+          <tr>
+            <td><strong>Value (V)</strong></td>
+            <td>실제로 전달할 정보</td>
+            <td>책의 본문</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- SECTION 4 -->
+    <section>
+      <h2>구조 — 인코더와 디코더</h2>
+      <p>트랜스포머는 크게 <strong>인코더(Encoder)</strong>와 <strong>디코더(Decoder)</strong>로 나뉜다. 인코더는 입력 문장의 의미를 압축된 표현으로 변환하고, 디코더는 그 표현을 받아 출력 문장을 생성한다.</p>
+      <p>오늘날의 대형 언어 모델은 용도에 따라 구조가 다르다. BERT는 인코더만 사용해 문장 이해와 분류에 강하고, GPT와 Claude는 디코더만 사용해 텍스트 생성에 특화되어 있다. 번역·요약 모델은 인코더-디코더 구조 전체를 활용한다.</p>
+      <p>한 가지 중요한 보완이 있다. 트랜스포머는 문장 전체를 동시에 처리하므로 단어의 순서 정보가 자동으로 반영되지 않는다. 이를 보완하기 위해 <strong>포지셔널 인코딩(Positional Encoding)</strong>을 별도로 계산해 각 단어의 위치 정보를 주입한다.</p>
+    </section>
+
+    <div class="diagram">
+      <p class="diagram-title">트랜스포머 아키텍처의 흐름</p>
+      <div class="flow-steps">
+        <div class="flow-step">
+          <div class="step-line"><div class="step-dot"></div><div class="step-connector"></div></div>
+          <div class="step-content">
+            <div class="step-label">01 · Input Embedding</div>
+            <div class="step-desc">텍스트를 토큰으로 분리하고, 각 토큰을 고차원 벡터로 변환한다. 포지셔널 인코딩을 더해 순서 정보를 주입.</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="step-line"><div class="step-dot"></div><div class="step-connector"></div></div>
+          <div class="step-content">
+            <div class="step-label">02 · Self-Attention</div>
+            <div class="step-desc">모든 단어 쌍의 관련도를 동시에 계산. Q·K·V 행렬 연산으로 문맥을 반영한 표현이 생성된다.</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="step-line"><div class="step-dot"></div><div class="step-connector"></div></div>
+          <div class="step-content">
+            <div class="step-label">03 · Multi-Head Attention</div>
+            <div class="step-desc">여러 헤드가 다양한 관점에서 병렬로 어텐션을 수행. 결과를 합쳐 풍부한 문맥 표현을 완성.</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="step-line"><div class="step-dot"></div><div class="step-connector"></div></div>
+          <div class="step-content">
+            <div class="step-label">04 · Feed-Forward + Norm</div>
+            <div class="step-desc">어텐션 결과를 피드포워드 네트워크로 추가 변환. 레이어 정규화로 학습을 안정화.</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="step-line"><div class="step-dot"></div></div>
+          <div class="step-content">
+            <div class="step-label">05 · Output Generation</div>
+            <div class="step-desc">디코더(또는 언어 모델 헤드)가 가장 확률 높은 다음 토큰을 반복 생성하며 텍스트를 완성한다.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 5 -->
+    <section>
+      <h2>LLM 학습 — "다음 단어 맞히기"의 반복</h2>
+      <p>LLM은 트랜스포머 구조를 바탕으로 방대한 텍스트를 학습한다. 학습 방식은 놀랍도록 단순하다. <strong>"다음 단어를 맞혀라."</strong></p>
+      <p>"오늘 날씨가 매우 ___"라는 문장에서 빈칸을 맞히는 훈련을 수조 번 반복하면서, 모델은 언어의 패턴, 문법, 사실, 논리적 관계까지 자연스럽게 학습한다. 이 과정에서 수십억~수천억 개에 달하는 <strong>파라미터(Parameter)</strong>가 점점 정교하게 조정된다.</p>
+    </section>
+
+    <div class="pull-quote">
+      <p>트랜스포머는 "언어를 이해한다"기보다 "언어의 패턴을 극도로 정교하게 모델링한다"고 보는 것이 정확하다. 그럼에도 그 결과는 놀랍도록 사람과 유사한 텍스트 생성 능력으로 이어진다.</p>
+    </div>
+
+    <hr class="section-rule">
+
+    <!-- WHY POWERFUL -->
+    <section>
+      <h2>왜 트랜스포머는 이토록 강력한가</h2>
+      <ul class="insight-list">
+        <li><span><strong>병렬 처리.</strong> 모든 단어를 동시에 처리하므로 RNN 대비 학습 속도가 월등히 빠르다. GPU/TPU의 병렬 연산 능력을 최대로 활용한다.</span></li>
+        <li><span><strong>장거리 의존성 해결.</strong> 어텐션은 문장 내 어떤 두 단어 사이의 관계도 동일한 비용으로 계산한다. 거리에 관계없이 관련 정보를 포착한다.</span></li>
+        <li><span><strong>확장성(Scalability).</strong> 데이터와 파라미터를 늘릴수록 성능이 꾸준히 향상된다. "더 크면 더 좋다"는 스케일링 법칙이 성립하는 구조다.</span></li>
+        <li><span><strong>범용성.</strong> 언어, 이미지, 음성, 코드 — 순서 있는 데이터라면 무엇이든 처리할 수 있다. 이것이 트랜스포머가 AI 전 분야를 지배하게 된 이유다.</span></li>
+      </ul>
+    </section>
+
+    <hr class="section-rule">
+
+    <!-- GLOSSARY -->
+    <section class="glossary-section">
+      <h2>용어 정리</h2>
+      <div class="glossary-item">
+        <div class="glossary-term">LLM</div>
+        <div class="glossary-en">Large Language Model · 대형 언어 모델</div>
+        <p class="glossary-def">방대한 텍스트 데이터로 학습된 AI 언어 모델. ChatGPT, Claude, Gemini 등이 해당된다.</p>
+      </div>
+      <div class="glossary-item">
+        <div class="glossary-term">트랜스포머 (Transformer)</div>
+        <div class="glossary-en">Vaswani et al., 2017</div>
+        <p class="glossary-def">어텐션 메커니즘을 기반으로 한 신경망 구조. 현재 대부분의 LLM의 핵심 구조다.</p>
+      </div>
+      <div class="glossary-item">
+        <div class="glossary-term">RNN</div>
+        <div class="glossary-en">Recurrent Neural Network · 순환 신경망</div>
+        <p class="glossary-def">단어를 순서대로 처리하는 구조. 장기 의존성 문제와 병렬화 불가로 한계가 있었다.</p>
+      </div>
+      <div class="glossary-item">
+        <div class="glossary-term">셀프 어텐션 (Self-Attention)</div>
+        <div class="glossary-en">Scaled Dot-Product Attention</div>
+        <p class="glossary-def">같은 문장 내 단어들 사이의 관계를 계산하는 어텐션. Q·K·V 행렬 연산으로 구현된다.</p>
+      </div>
+      <div class="glossary-item">
+        <div class="glossary-term">멀티헤드 어텐션 (Multi-Head Attention)</div>
+        <div class="glossary-en">Multi-Head Attention</div>
+        <p class="glossary-def">여러 관점에서 병렬로 어텐션을 수행하는 기법. 다양한 언어 패턴을 동시에 포착한다.</p>
+      </div>
+      <div class="glossary-item">
+        <div class="glossary-term">포지셔널 인코딩 (Positional Encoding)</div>
+        <div class="glossary-en">Positional Encoding</div>
+        <p class="glossary-def">단어의 순서 정보를 모델에 주입하는 방법. 트랜스포머가 병렬 처리를 하므로 위치 정보를 별도로 추가해야 한다.</p>
+      </div>
+      <div class="glossary-item">
+        <div class="glossary-term">파라미터 (Parameter)</div>
+        <div class="glossary-en">Parameter</div>
+        <p class="glossary-def">모델이 학습을 통해 조정하는 내부 수치값. LLM은 수십억~수천억 개의 파라미터를 가진다.</p>
+      </div>
+      <div class="glossary-item">
+        <div class="glossary-term">장기 의존성 문제</div>
+        <div class="glossary-en">Long-term Dependency Problem</div>
+        <p class="glossary-def">긴 문장에서 앞쪽 정보를 유지하지 못하는 RNN의 한계. 트랜스포머의 어텐션이 이를 해결한다.</p>
+      </div>
+    </section>
+
+    <hr class="section-rule">
+
+    <!-- REFERENCES -->
+    <section class="ref-section">
+      <h2>출처</h2>
+      <div class="ref-item">
+        Vaswani, A., Shazeer, N., Parmar, N., Uszkoreit, J., Jones, L., Gomez, A. N., Kaiser, Ł., &amp; Polosukhin, I. (2017).
+        <em>Attention Is All You Need.</em>
+        Advances in Neural Information Processing Systems (NeurIPS), 30.
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+      <span class="footer-brand">AI Deep Dive Series</span>
+      <span class="footer-tag">Transformer · Attention · Self-Attention · LLM</span>
+    </div>
+  </footer>
+
+</div>
+</body>
+</html>
