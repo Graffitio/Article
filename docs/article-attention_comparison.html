@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Claude, GPT, Gemini는 어디를 보는가</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --ink: #1A1A2E; --paper: #F8F9FA; --warm-mid: #A8BDD4;
+      --accent: #5B7FA6; --accent2: #2B2D42; --rule: #DDE3EA;
+      --serif: 'Noto Sans KR', sans-serif; --mono: 'Space Mono', monospace;
+    }
+    html { scroll-behavior: smooth; }
+    body { background: var(--paper); color: var(--ink); font-family: var(--serif); line-height: 1.9; min-height: 100vh; overflow-x: hidden; }
+    body::before { content: ''; position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E"); pointer-events: none; z-index: 1000; opacity: 0.6; }
+    .page-wrap { max-width: 760px; margin: 0 auto; padding: 0 2rem; }
+    header { padding: 4rem 0 0; position: relative; }
+    .kicker { font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--accent); display: block; margin-bottom: 1.8rem; }
+    .headline { font-size: clamp(2.4rem, 6vw, 4rem); font-weight: 700; line-height: 1.15; letter-spacing: -0.02em; margin-bottom: 0.4rem; }
+    .headline em { font-style: normal; color: var(--accent); position: relative; }
+    .headline em::after { content: ''; position: absolute; left: 0; bottom: 2px; width: 100%; height: 3px; background: var(--accent); opacity: 0.3; }
+    .subhead { font-family: var(--mono); font-size: 0.72rem; line-height: 1.6; color: #5B6A7E; margin: 1.6rem 0 2rem; max-width: 560px; letter-spacing: 0.05em; }
+    .byline-row { display: flex; align-items: center; gap: 1.5rem; padding: 1.2rem 0; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); margin-bottom: 3.5rem; flex-wrap: wrap; }
+    .byline-tag { font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.18em; text-transform: uppercase; color: #8E97A8; }
+    .dot { color: var(--warm-mid); }
+    .lead-block { position: relative; margin-bottom: 3rem; }
+    .lead-text { font-size: 1.12rem; font-weight: 300; color: #3D4557; }
+    section { margin-bottom: 2.8rem; }
+    h2 { font-size: 1.3rem; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 1rem; padding-left: 1rem; border-left: 3px solid var(--accent); }
+    p { font-size: 1rem; font-weight: 300; color: #3D4557; margin-bottom: 1.1rem; }
+    .pull-quote { margin: 3rem -1rem; padding: 2.2rem 2.5rem; background: var(--accent2); color: #e8e0d0; position: relative; overflow: hidden; }
+    .pull-quote::before { content: '"'; position: absolute; top: -0.6rem; left: 1.2rem; font-size: 9rem; font-weight: 700; color: rgba(255,255,255,0.06); line-height: 1; pointer-events: none; }
+    .pull-quote p { font-size: 1.2rem; font-weight: 400; color: #dcd4c6; line-height: 1.75; margin: 0; position: relative; z-index: 1; }
+    .term-box { background: #EDF2F7; border: 1px solid var(--rule); padding: 1.8rem 2rem; margin: 2.5rem 0; position: relative; }
+    .term-box::before { content: 'KEY CONCEPT'; font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.2em; color: var(--accent); display: block; margin-bottom: 0.8rem; }
+    .term-box h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--accent2); }
+    .term-box p { font-size: 0.92rem; margin: 0; color: #3D4557; }
+
+    /* ── 비교 테이블 ── */
+    .compare-table { width: 100%; border-collapse: collapse; margin: 2rem 0; font-family: var(--mono); font-size: 0.78rem; }
+    .compare-table thead tr { border-bottom: 2px solid var(--accent2); }
+    .compare-table th { padding: 0.8rem 1rem; text-align: left; font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: #8E97A8; font-weight: 600; }
+    .compare-table th:first-child { width: 30%; }
+    .compare-table td { padding: 0.9rem 1rem; border-bottom: 1px solid var(--rule); color: #3D4557; line-height: 1.5; vertical-align: top; }
+    .compare-table tbody tr:last-child td { border-bottom: none; }
+    .compare-table tbody tr:hover td { background: #EDF2F7; }
+    .compare-table td:first-child { color: var(--ink); font-weight: 600; font-size: 0.7rem; letter-spacing: 0.08em; }
+    .model-claude { color: #5B7FA6; font-weight: 700; }
+    .model-gpt { color: #10A37F; font-weight: 700; }
+    .model-gemini { color: #4285F4; font-weight: 700; }
+
+    /* ── 모델 카드 ── */
+    .model-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin: 2rem 0; }
+    .model-card { background: #fff; border: 1px solid var(--rule); padding: 1.4rem 1.4rem 1.6rem; position: relative; }
+    .model-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+    .model-card.claude::before { background: #5B7FA6; }
+    .model-card.gpt::before { background: #10A37F; }
+    .model-card.gemini::before { background: #4285F4; }
+    .model-name { font-family: var(--mono); font-size: 0.78rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.6rem; }
+    .model-card.claude .model-name { color: #5B7FA6; }
+    .model-card.gpt .model-name { color: #10A37F; }
+    .model-card.gemini .model-name { color: #4285F4; }
+    .model-trait { font-family: var(--mono); font-size: 0.78rem; font-weight: 700; color: var(--ink); margin-bottom: 0.5rem; }
+    .model-desc { font-size: 0.82rem; font-weight: 300; color: #5B6A7E; line-height: 1.6; }
+
+    .insight-list { counter-reset: insight; list-style: none; margin: 1.5rem 0; }
+    .insight-list li { counter-increment: insight; display: flex; gap: 1.2rem; margin-bottom: 1rem; align-items: flex-start; }
+    .insight-list li::before { content: counter(insight, decimal-leading-zero); font-family: var(--mono); font-size: 0.75rem; color: var(--accent); flex-shrink: 0; margin-top: 0.15em; }
+    .insight-list li span { font-size: 0.95rem; color: #3D4557; line-height: 1.7; }
+
+    .diagram { margin: 2.5rem 0; font-family: var(--mono); }
+    .diagram-title { font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: #8E97A8; margin-bottom: 1rem; }
+
+    footer { margin-top: 5rem; padding: 2rem 0 4rem; border-top: 1px solid var(--rule); }
+    .footer-inner { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+    .footer-brand { font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: #8E97A8; }
+    .footer-tag { font-family: var(--mono); font-size: 0.6rem; color: var(--warm-mid); letter-spacing: 0.15em; }
+    .fade-in { opacity: 0; transform: translateY(18px); animation: fadeUp 0.7s ease forwards; }
+    .fade-in:nth-child(1) { animation-delay: 0.05s; } .fade-in:nth-child(2) { animation-delay: 0.15s; } .fade-in:nth-child(3) { animation-delay: 0.25s; } .fade-in:nth-child(4) { animation-delay: 0.35s; }
+    @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+    hr.section-rule { border: none; border-top: 1px solid var(--rule); margin: 2.5rem 0; }
+    .disclaimer { font-family: var(--mono); font-size: 0.65rem; color: #8E97A8; line-height: 1.7; padding: 1.2rem 1.4rem; border-left: 2px solid var(--rule); margin-top: 2rem; }
+    @media (max-width: 600px) {
+      .pull-quote { margin: 2.5rem -2rem; padding: 1.8rem 1.8rem; }
+      .headline { font-size: 2.2rem; }
+      .model-cards { grid-template-columns: 1fr; }
+      .compare-table { font-size: 0.7rem; }
+      .compare-table th, .compare-table td { padding: 0.7rem 0.6rem; }
+    }
+  </style>
+</head>
+<body>
+<div class="page-wrap">
+  <header>
+    <div class="fade-in">
+      <span class="kicker">AI · Model Comparison · Attention Architecture</span>
+      <h1 class="headline">Claude, GPT, Gemini는<br><em>어디를 보는가</em></h1>
+      <p class="subhead">어텐션 가중치 분배 전략의 차이와<br>모델별 컨텍스트 처리 방식 비교</p>
+      <div class="byline-row">
+        <span class="byline-tag">Essay</span>
+        <span class="dot">·</span>
+        <span class="byline-tag">LLM Architecture</span>
+        <span class="dot">·</span>
+        <span class="byline-tag">2026</span>
+        <span class="dot">·</span>
+        <span class="byline-tag">by Ian Jung</span>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="lead-block fade-in">
+      <p class="lead-text">같은 Transformer 구조를 쓰는데 왜 Claude, GPT, Gemini는 다르게 행동할까. 핵심은 어텐션이 컨텍스트의 어느 부분에 집중하느냐다. 모델마다 다른 학습 철학이 이 차이를 만든다.</p>
+    </div>
+
+    <section class="fade-in">
+      <h2>왜 모델마다 다른가</h2>
+      <p>모든 LLM은 동일한 Transformer 기반이다. 하지만 <strong>학습 방식과 RLHF 튜닝 방향</strong>에 따라 어텐션이 컨텍스트의 어느 부분에 더 집중하는지가 달라진다.</p>
+      <p>크게 두 가지 경향으로 나뉜다.</p>
+    </section>
+
+    <div class="model-cards fade-in">
+      <div class="model-card">
+        <div class="model-name">초기 토큰 우선형</div>
+        <div class="model-trait">Anchor-First</div>
+        <div class="model-desc">컨텍스트 앞부분에 높은 가중치를 유지. 일관성과 역할 고수에 강하지만 대화 중 방향 전환이 어렵다.</div>
+      </div>
+      <div class="model-card gemini">
+        <div class="model-name">최근 토큰 우선형</div>
+        <div class="model-trait">Recency-First</div>
+        <div class="model-desc">최근 입력에 민감하게 반응. 유연하게 흐름을 따라가지만 초기 지시를 잃기 쉽다.</div>
+      </div>
+      <div class="model-card gpt">
+        <div class="model-name">균형형</div>
+        <div class="model-trait">Balanced</div>
+        <div class="model-desc">초기와 최근 토큰 사이에서 균형을 유지. 두 경향의 중간 특성을 보인다.</div>
+      </div>
+    </div>
+
+    <div class="pull-quote">
+      <p>같은 질문을 해도 어느 AI에게 하느냐에 따라 결과가 다른 이유는 모델의 지능 차이가 아니라, 컨텍스트의 어느 지점을 기준 좌표로 삼느냐의 차이다.</p>
+    </div>
+
+    <section>
+      <h2>세 모델 비교</h2>
+      <p>어텐션 경향의 차이는 실제 사용 경험에서 여러 방식으로 드러난다.</p>
+
+      <div class="model-cards">
+        <div class="model-card claude">
+          <div class="model-name">Claude</div>
+          <div class="model-trait">초기 토큰 우선</div>
+          <div class="model-desc">시스템 프롬프트와 첫 지시에 강하게 앵커링. 역할 일관성이 높고 장기 대화에서 방향이 흔들리지 않는다. 단, 중간에 지시를 바꾸기 어렵다.</div>
+        </div>
+        <div class="model-card gpt">
+          <div class="model-name">GPT-4</div>
+          <div class="model-trait">초기~중간 균형</div>
+          <div class="model-desc">초기 지시를 유지하면서도 최근 입력에 어느 정도 반응. 두 특성의 중간 지점에 위치하며, 방향 전환도 어느 정도 가능하다.</div>
+        </div>
+        <div class="model-card gemini">
+          <div class="model-name">Gemini</div>
+          <div class="model-trait">최근 토큰 우선</div>
+          <div class="model-desc">가장 최근에 입력된 맥락에 민감하게 반응. 대화 중 방향 전환이 쉽지만, 초기에 설정한 조건이 긴 대화 후 흐려질 수 있다.</div>
+        </div>
+      </div>
+
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>항목</th>
+            <th class="model-claude">Claude</th>
+            <th class="model-gpt">GPT-4</th>
+            <th class="model-gemini">Gemini</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>어텐션 경향</td>
+            <td>초기 토큰 우선</td>
+            <td>초기~중간 균형</td>
+            <td>최근 토큰 우선</td>
+          </tr>
+          <tr>
+            <td>시스템 프롬프트 고수</td>
+            <td>강함</td>
+            <td>중간</td>
+            <td>약한 편</td>
+          </tr>
+          <tr>
+            <td>대화 중 방향 전환</td>
+            <td>어려움</td>
+            <td>중간</td>
+            <td>상대적으로 쉬움</td>
+          </tr>
+          <tr>
+            <td>장기 대화 일관성</td>
+            <td>높음</td>
+            <td>중간</td>
+            <td>낮은 편</td>
+          </tr>
+          <tr>
+            <td>최근 맥락 반응성</td>
+            <td>낮음</td>
+            <td>중간</td>
+            <td>높음</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <div class="term-box">
+      <h3>Gemini가 최근 입력 기준으로 동작하는 이유</h3>
+      <p>Google은 Gemini 설계에 <strong>검색 엔진적 사고</strong>를 반영했다. 검색은 본질적으로 "가장 최근의, 가장 관련성 높은" 쿼리에 응답하는 구조다. 이 철학이 어텐션 튜닝에도 녹아든 것으로 분석된다. 또한 Gemini는 텍스트·이미지·영상을 동시에 처리하는 멀티모달 구조상, 현재 입력 슬롯에 집중하는 방식이 아키텍처적으로 유리하다.</p>
+    </div>
+
+    <section>
+      <h2>같은 Transformer, 다른 철학</h2>
+      <p>Anthropic은 Claude를 설계할 때 <strong>안전성과 일관성</strong>을 최우선으로 삼았다. 시스템 프롬프트에 설정된 제약과 역할이 대화 내내 유지되어야 한다는 철학이 초기 토큰 우선 경향으로 이어진다.</p>
+      <p>OpenAI의 GPT는 범용성을 목표로 두 경향의 균형을 취한다. 초기 지시도 따르되, 대화 흐름에 따라 유연하게 조정되는 방식이다.</p>
+      <p>Google의 Gemini는 앞서 설명했듯 최근 입력 중심으로 설계됐다. 이는 실시간 검색 통합, 빠른 맥락 전환이 잦은 사용 환경을 고려한 결과로 볼 수 있다.</p>
+    </section>
+
+    <hr class="section-rule">
+
+    <section>
+      <h2>실용적 시사점</h2>
+      <ul class="insight-list">
+        <li><span><strong>Claude / GPT를 쓸 때</strong> — 첫 프롬프트를 정밀하게 설계하는 것이 핵심이다. 한 번 앵커가 잡히면 잘 바뀌지 않으므로, 역할·목적·제약을 처음에 명확히 정의하라.</span></li>
+        <li><span><strong>Gemini를 쓸 때</strong> — 대화 중간에 지시를 바꾸거나 보정하는 것이 비교적 잘 먹힌다. 단, 초반 조건이 흐려질 수 있으므로 중요한 조건은 주기적으로 재언급하라.</span></li>
+        <li><span><strong>모델을 선택할 때</strong> — 역할 일관성이 중요한 작업(긴 문서 작성, 코드 리뷰)에는 Claude, 대화 흐름에 따라 유연하게 전환해야 하는 작업에는 Gemini가 유리할 수 있다.</span></li>
+        <li><span><strong>어떤 모델이든</strong> — 긴 대화에서는 핵심 지시를 주기적으로 재주입하는 것이 가장 확실한 방법이다. 모델의 특성을 이해하고 그에 맞게 프롬프트 전략을 조정하라.</span></li>
+      </ul>
+
+      <p class="disclaimer">※ 이 비교는 공개된 연구 및 행동 분석에 기반한 것으로, 각 회사가 어텐션 가중치 전략을 공식 공개하지 않으므로 확정적 사실이 아닌 분석적 관점으로 읽어야 한다.</p>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+      <span class="footer-brand">AI Cognition Series</span>
+      <span class="footer-tag">Claude · GPT · Gemini · Attention · LLM</span>
+    </div>
+  </footer>
+</div>
+</body>
+</html>
