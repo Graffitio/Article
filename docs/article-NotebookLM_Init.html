@@ -19,12 +19,16 @@
       font-family: var(--serif); line-height: 1.9;
       min-height: 100vh; overflow-x: hidden;
     }
+    
+    /* 렌더링 오류를 유발할 수 있는 SVG 노이즈 필터는 안전을 위해 주석 처리합니다.
     body::before {
       content: '';
       position: fixed; inset: 0;
       background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
       pointer-events: none; z-index: 1000; opacity: 0.6;
     }
+    */
+
     .page-wrap { max-width: 760px; margin: 0 auto; padding: 0 2rem; }
 
     /* ── HEADER ── */
@@ -50,3 +54,293 @@
       font-family: var(--mono); font-size: 0.72rem; line-height: 1.6;
       color: #5B6A7E; margin: 1.6rem 0 2rem;
       max-width: 560px; letter-spacing: 0.05em;
+    }
+    .byline-row {
+      display: flex; align-items: center; gap: 1.5rem;
+      padding: 1.2rem 0;
+      border-top: 1px solid var(--rule);
+      border-bottom: 1px solid var(--rule);
+      margin-bottom: 3.5rem; flex-wrap: wrap;
+    }
+    .byline-tag {
+      font-family: var(--mono); font-size: 0.65rem;
+      letter-spacing: 0.18em; text-transform: uppercase; color: #8E97A8;
+    }
+    .dot { color: var(--warm-mid); }
+
+    /* ── LEAD ── */
+    .lead-block { position: relative; margin-bottom: 3rem; }
+    .lead-letter {
+      float: left; font-size: 5.5rem; font-weight: 700;
+      line-height: 0.82; margin: 0.1em 0.12em 0 0; color: var(--accent);
+    }
+    .lead-text { font-size: 1.12rem; font-weight: 300; color: #3D4557; }
+
+    /* ── BODY ── */
+    section { margin-bottom: 2.8rem; }
+    h2 {
+      font-size: 1.3rem; font-weight: 700;
+      letter-spacing: -0.01em; margin-bottom: 1rem;
+      padding-left: 1rem; border-left: 3px solid var(--accent);
+    }
+    p { font-size: 1rem; font-weight: 300; color: #3D4557; margin-bottom: 1.1rem; }
+    strong { font-weight: 700; color: var(--ink); }
+
+    /* ── PULL QUOTE ── */
+    .pull-quote {
+      margin: 3rem -1rem; padding: 2.2rem 2.5rem;
+      background: var(--accent2); color: #e8e0d0;
+      position: relative; overflow: hidden;
+    }
+    .pull-quote::before {
+      content: '"'; position: absolute;
+      top: -0.6rem; left: 1.2rem;
+      font-size: 9rem; font-weight: 700;
+      color: rgba(255,255,255,0.06); line-height: 1; pointer-events: none;
+    }
+    .pull-quote p {
+      font-size: 1.2rem; font-weight: 400;
+      color: #dcd4c6; line-height: 1.75;
+      margin: 0; position: relative; z-index: 1;
+    }
+
+    /* ── TERM BOX ── */
+    .term-box {
+      background: #EDF2F7; border: 1px solid var(--rule);
+      padding: 1.8rem 2rem; margin: 2.5rem 0; position: relative;
+    }
+    .term-box::before {
+      content: 'SETUP GUIDE'; font-family: var(--mono);
+      font-size: 0.6rem; letter-spacing: 0.2em;
+      color: var(--accent); display: block; margin-bottom: 0.8rem;
+    }
+    .term-box h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--accent2); }
+    .term-box p { font-size: 0.92rem; margin: 0; color: #3D4557; }
+
+    /* ── TABLE ── */
+    .data-table { margin: 2.5rem 0; font-family: var(--mono); }
+    .data-table-title {
+      font-size: 0.65rem; letter-spacing: 0.2em;
+      text-transform: uppercase; color: #8E97A8; margin-bottom: 1rem;
+    }
+    .data-table table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+    .data-table thead th {
+      text-align: left; font-weight: 700;
+      color: var(--accent2); font-size: 0.68rem;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      padding: 0.6rem 0.8rem; border-bottom: 2px solid var(--accent2);
+    }
+    .data-table tbody td {
+      padding: 0.7rem 0.8rem; color: #3D4557; font-size: 0.82rem;
+      border-bottom: 1px solid var(--rule); vertical-align: top;
+    }
+    .data-table tbody tr:hover td { background: #EDF2F7; }
+
+    /* ── FLOW DIAGRAM ── */
+    .diagram { margin: 2.5rem 0; font-family: var(--mono); }
+    .diagram-title {
+      font-size: 0.65rem; letter-spacing: 0.2em;
+      text-transform: uppercase; color: #8E97A8; margin-bottom: 1rem;
+    }
+    .flow-steps { display: flex; flex-direction: column; gap: 0; }
+    .flow-step { display: flex; align-items: stretch; gap: 1rem; }
+    .step-line { display: flex; flex-direction: column; align-items: center; width: 28px; flex-shrink: 0; }
+    .step-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); flex-shrink: 0; margin-top: 4px; }
+    .step-connector { width: 1px; flex: 1; background: var(--rule); margin: 3px 0; }
+    .flow-step:last-child .step-connector { display: none; }
+    .step-content { padding-bottom: 1.4rem; flex: 1; }
+    .step-label { font-size: 0.65rem; letter-spacing: 0.15em; color: var(--accent); text-transform: uppercase; }
+    .step-desc { font-size: 0.82rem; color: #3D4557; line-height: 1.55; margin-top: 0.2rem; }
+
+    /* ── INSIGHT LIST ── */
+    .insight-list { counter-reset: insight; list-style: none; margin: 1.5rem 0; }
+    .insight-list li { counter-increment: insight; display: flex; gap: 1.2rem; margin-bottom: 1rem; align-items: flex-start; }
+    .insight-list li::before {
+      content: counter(insight, decimal-leading-zero);
+      font-family: var(--mono); font-size: 0.75rem;
+      color: var(--accent); flex-shrink: 0; margin-top: 0.15em;
+    }
+    .insight-list li span { font-size: 0.95rem; color: #3D4557; line-height: 1.7; }
+
+    /* ── GLOSSARY ── */
+    .glossary-section { margin-bottom: 2.8rem; }
+    .glossary-section h2 { margin-bottom: 1.4rem; }
+    .glossary-item { padding: 1rem 0; border-bottom: 1px solid var(--rule); }
+    .glossary-item:last-child { border-bottom: none; }
+    .glossary-term { font-family: var(--mono); font-size: 0.88rem; font-weight: 700; color: var(--accent2); margin-bottom: 0.2rem; }
+    .glossary-en { font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.1em; color: #8E97A8; margin-bottom: 0.4rem; }
+    .glossary-def { font-size: 0.9rem; color: #3D4557; line-height: 1.7; margin: 0; }
+
+    /* ── FOOTER ── */
+    footer { margin-top: 5rem; padding: 2rem 0 4rem; border-top: 1px solid var(--rule); }
+    .footer-inner { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+    .footer-brand { font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: #8E97A8; }
+    .footer-tag { font-family: var(--mono); font-size: 0.6rem; color: var(--warm-mid); letter-spacing: 0.15em; }
+
+    /* ── ANIMATIONS (안전하게 수정됨) ── */
+    .fade-in { 
+      -webkit-animation: fadeUp 0.7s ease forwards;
+      animation: fadeUp 0.7s ease forwards;
+      -webkit-animation-fill-mode: both;
+      animation-fill-mode: both;
+    }
+    .fade-in:nth-child(1) { -webkit-animation-delay: 0.05s; animation-delay: 0.05s; }
+    .fade-in:nth-child(2) { -webkit-animation-delay: 0.15s; animation-delay: 0.15s; }
+    .fade-in:nth-child(3) { -webkit-animation-delay: 0.25s; animation-delay: 0.25s; }
+    .fade-in:nth-child(4) { -webkit-animation-delay: 0.35s; animation-delay: 0.35s; }
+    
+    @-webkit-keyframes fadeUp { 
+      0% { opacity: 0; -webkit-transform: translateY(18px); transform: translateY(18px); }
+      100% { opacity: 1; -webkit-transform: translateY(0); transform: translateY(0); }
+    }
+    @keyframes fadeUp { 
+      0% { opacity: 0; -webkit-transform: translateY(18px); transform: translateY(18px); }
+      100% { opacity: 1; -webkit-transform: translateY(0); transform: translateY(0); }
+    }
+
+    hr.section-rule { border: none; border-top: 1px solid var(--rule); margin: 2.5rem 0; }
+
+    @media (max-width: 520px) {
+      .pull-quote { margin: 2.5rem -2rem; padding: 1.8rem 1.8rem; }
+      .headline { font-size: 2.2rem; }
+    }
+  </style>
+</head>
+<body>
+<div class="page-wrap">
+
+  <header>
+    <div class="fade-in">
+      <span class="kicker">AI · Productivity · Application</span>
+      <h1 class="headline">NotebookLM<br>: <em>제대로 쓰기</em></h1>
+      <p class="subhead">구글의 AI 노트 앱 100% 활용법 —<br>문서 업로드 전략부터 심층 분석까지</p>
+      <div class="byline-row">
+        <span class="byline-tag">Practical Guide</span>
+        <span class="dot">·</span>
+        <span class="byline-tag">RAG · Prompting</span>
+        <span class="dot">·</span>
+        <span class="byline-tag">2026</span>
+        <span class="dot">·</span>
+        <span class="byline-tag">by Ian Jung</span>
+      </div>
+    </div>
+  </header>
+
+  <main>
+
+    <div class="lead-block fade-in">
+      <p class="lead-text">언어 모델(LLM) 활용의 성패는 결국 <strong>'소스(Source)'</strong>에 달려있습니다. "그냥 요약해 줘" 식의 뻔한 프롬프트와 철저하게 통제된 소스 기반의 대화는 차원이 다른 결과를 만들어냅니다. 모든 RAG(검색 증강 생성) 환경에서 소스 기반 대화가 최우선시되어야 하는 이유이며, NotebookLM은 바로 이 지점에 특화된 강력한 도구입니다.</p>
+    </div>
+
+    <section class="fade-in">
+      <h2>1. 대화 스타일 정의 : 페르소나와 구조 부여하기</h2>
+      <p>단순히 문서를 던져주고 질문하는 것을 넘어, AI가 어떤 렌즈를 통해 문서를 바라볼지 <strong>대화 스타일을 정의</strong>해야 합니다. 가장 효과적이고 흔히 쓰이는 페르소나는 비판적이고 분석적인 <strong>'애널리스트(Analyst)'</strong>와 맥락을 짚어주며 설명하는 <strong>'가이드(Guide)'</strong>입니다.</p>
+      <p>대화 스타일을 설정할 때는 단순히 역할만 부여하는 것이 아니라, <strong>상황(목적) 부여</strong>와 <strong>답변 구조(서론-본론-결론 등)</strong>를 나누어 명확한 컨텍스트(Context)를 제공해야 합니다.</p>
+    </section>
+
+    <div class="term-box">
+      <h3>UI 셋팅 가이드 : 맞춤 설정(Custom Instructions) 적용</h3>
+      <p>채팅창 내 시스템 프롬프트 설정 기능(맞춤 설정 ⚙️ 버튼)을 활용하여 AI의 기본 행동 지침을 세팅하세요. 매 질문마다 번거롭게 배경 설명을 할 필요 없이, 사전에 정의된 규칙에 따라 답변을 출력하게 됩니다.</p>
+    </div>
+
+    <div class="data-table">
+      <p class="data-table-title">대화 스타일 설정 예시</p>
+      <table>
+        <thead>
+          <tr>
+            <th>구분</th>
+            <th>설정 내용 (프롬프트 예시)</th>
+            <th>기대 효과</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>상황 부여</strong><br>(목적 & 페르소나)</td>
+            <td>"너는 10년 차 IT 산업 애널리스트야. 이 문서에서 향후 3년간의 시장 리스크 요인을 찾아 경영진에게 보고할 목적이야."</td>
+            <td>일반론적인 답변을 배제하고, 실무적이고 날카로운 비즈니스 관점의 인사이트 도출</td>
+          </tr>
+          <tr>
+            <td><strong>답변 구조</strong><br>(출력 포맷)</td>
+            <td>"답변은 항상 [핵심 요약(1문단)] - [근거 3가지(불릿 포인트)] - [결론 및 제언] 구조로 작성해."</td>
+            <td>가독성이 극대화되며, 복잡한 문서에서도 원하는 정보만 빠르게 스캐닝 가능</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <section>
+      <h2>2. 전략적인 문서 업로드 : 30페이지의 법칙</h2>
+      <p>수백 페이지의 책이나 방대한 논문을 통째로 업로드하는 것은 피해야 합니다. 현재 대형 언어 모델이 컨텍스트 내에서 정보를 누락 없이 가장 잘 읽어내는 한계점은 <strong>대략 20~30페이지 분량</strong>입니다.</p>
+      <p>따라서 문서를 의미 있는 단위나 챕터별로 쪼개어 업로드하는 것이 핵심입니다. <strong>주제별 + 30페이지 단위</strong>로 분할하여 소스를 제공하면 AI의 정보 추출 능력이 비약적으로 상승합니다.</p>
+    </section>
+
+    <div class="pull-quote">
+      <p>문서를 무작정 쏟아붓지 마십시오. 잘게 쪼갠 20~30페이지 단위의 소스들을 <strong>마인드맵 구조</strong>로 인식하고 업로드하는 것만으로도, AI의 정보 인식률과 연결성은 압도적으로 올라갑니다.</p>
+    </div>
+
+    <section>
+      <h2>3. Depth가 높은 질문 : 메모 기반의 선순환</h2>
+      <p>NotebookLM의 진정한 파괴력은 일회성 채팅이 아닌 <strong>'메모(Notes)'</strong> 기능에서 나옵니다. 대화를 통해 유의미한 답변을 얻어내고, 이를 메모로 저장한 뒤, <strong>그 메모들만을 다시 소스(Source)로 선택하여 질문의 뎁스(Depth)를 높이는 방식</strong>이 가장 강력합니다.</p>
+      <p>여러 소스에 파편화되어 있던 정보들을 모아 새로운 결론을 내거나, 복잡한 개념 간의 마인드맵을 형성하는 데 이보다 뛰어난 방법은 없습니다.</p>
+    </section>
+
+    <div class="diagram">
+      <p class="diagram-title">심층 분석을 위한 3단계 메모 스킬</p>
+      <div class="flow-steps">
+        <div class="flow-step">
+          <div class="step-line"><div class="step-dot"></div><div class="step-connector"></div></div>
+          <div class="step-content">
+            <div class="step-label">Step 01 · 1차 개념 질문 (개별 챕터)</div>
+            <div class="step-desc">업로드한 책이나 보고서에서 특정 부분을 공부할 때, 먼저 개별 개념에 대한 질문을 던집니다. (예: "A라는 개념의 정의와 한계는 무엇인가?")</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="step-line"><div class="step-dot"></div><div class="step-connector"></div></div>
+          <div class="step-content">
+            <div class="step-label">Step 02 · 핵심 답변 노트 저장 (Save to Note)</div>
+            <div class="step-desc">도출된 양질의 답변 중 모든 챕터에 사용되는 보편적이고 중요한 개념들을 '메모(Note)'로 핀(Pin)하여 저장합니다.</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="step-line"><div class="step-dot"></div></div>
+          <div class="step-content">
+            <div class="step-label">Step 03 · 메모 기반의 결론 도출 및 마인드맵</div>
+            <div class="step-desc">저장된 여러 개의 메모들을 선택(Select)하여 집중 소스로 설정한 뒤, "이 메모들을 종합하여 새로운 결론을 내줘" 혹은 "개념 간의 연결성을 마인드맵 구조로 그려줘"라고 요청합니다.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="section-rule">
+
+    <section class="glossary-section">
+      <h2>핵심 용어 정리</h2>
+      <div class="glossary-item">
+        <div class="glossary-term">소스 기반 대화 (Source-Grounded Conversation)</div>
+        <div class="glossary-en">Information Grounding</div>
+        <p class="glossary-def">AI가 학습한 방대한 사전 지식에 의존하는 대신, 사용자가 직접 제공한 문서(소스) 내에서만 사실을 확인하고 답변을 생성하도록 강제하는 방식입니다. 환각(Hallucination) 현상을 최소화합니다.</p>
+      </div>
+      <div class="glossary-item">
+        <div class="glossary-term">RAG (검색 증강 생성)</div>
+        <div class="glossary-en">Retrieval-Augmented Generation</div>
+        <p class="glossary-def">질문과 관련된 외부 지식이나 문서를 검색(Retrieval)하여 가져온 뒤, 이를 바탕으로 AI가 답변을 생성(Generation)하는 기술입니다. NotebookLM은 개인화된 RAG 시스템의 훌륭한 예시입니다.</p>
+      </div>
+      <div class="glossary-item">
+        <div class="glossary-term">컨텍스트 윈도우 한계</div>
+        <div class="glossary-en">Context Window Limit</div>
+        <p class="glossary-def">AI가 한 번에 처리하고 기억할 수 있는 텍스트의 양입니다. 기술적으로는 수백 페이지를 넣을 수 있지만, 집중도(Attention)가 분산되지 않고 고품질의 정보 추출을 보장하는 실질적 한계는 20~30페이지 내외로 보는 것이 실무적 관례입니다.</p>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+      <span class="footer-brand">Ian Jung Series</span>
+      <span class="footer-tag">NotebookLM · RAG · Prompt Engineering · Personalization</span>
+    </div>
+  </footer>
+
+</div>
+</body>
+</html>
