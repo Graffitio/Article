@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 시대의 생존법 : 브레인 프라이(Brain Fry) 과열된 뇌를 식혀라</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* [테마 통일] NotebookLM 스타일 CSS를 그대로 계승합니다. */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+--ink: #1A1A2E; --paper: #F8F9FA; --warm-mid: #A8BDD4;
+--accent: #5B7FA6; --accent2: #2B2D42; --rule: #DDE3EA;
+--serif: 'Noto Serif KR', serif; --mono: 'Space Mono', monospace;
+}
+html { scroll-behavior: smooth; }
+body {
+background: var(--paper); color: var(--ink);
+font-family: var(--serif); line-height: 1.9;
+min-height: 100vh; overflow-x: hidden;
+}
+
+.page-wrap { max-width: 960px; margin: 0 auto; padding: 0 2rem; }
+
+/* ── HEADER ── */
+header { padding: 4rem 0 0; position: relative; }
+.kicker {
+  font-family: var(--mono); font-size: 0.7rem;
+  letter-spacing: 0.25em; text-transform: uppercase;
+  color: var(--accent); display: block; margin-bottom: 1.8rem;
+}
+.headline {
+  font-size: clamp(2.4rem, 6vw, 3.8rem); font-weight: 700;
+  line-height: 1.15; letter-spacing: -0.02em; margin-bottom: 0.4rem;
+}
+.headline em {
+  font-style: normal; color: var(--accent); position: relative;
+}
+.headline em::after {
+  content: ''; position: absolute;
+  left: 0; bottom: 2px; width: 100%; height: 3px;
+  background: var(--accent); opacity: 0.3;
+}
+.subhead {
+  font-family: var(--mono); font-size: 0.72rem; line-height: 1.6;
+  color: #5B6A7E; margin: 1.6rem 0 2rem;
+  max-width: 580px; letter-spacing: 0.05em;
+}
+.byline-row {
+  display: flex; align-items: center; gap: 1.5rem;
+  padding: 1.2rem 0;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  margin-bottom: 3.5rem; flex-wrap: wrap;
+}
+.byline-tag {
+  font-family: var(--mono); font-size: 0.65rem;
+  letter-spacing: 0.18em; text-transform: uppercase; color: #8E97A8;
+}
+.dot { color: var(--warm-mid); }
+
+/* ── LEAD ── */
+.lead-block { position: relative; margin-bottom: 3rem; }
+.lead-letter {
+  float: left; font-size: 5.5rem; font-weight: 700;
+  line-height: 0.82; margin: 0.1em 0.12em 0 0; color: var(--accent);
+}
+.lead-text { font-size: 1.12rem; font-weight: 300; color: #3D4557; }
+
+/* ── BODY ── */
+section { margin-bottom: 2.8rem; }
+h2 {
+  font-size: 1.3rem; font-weight: 700;
+  letter-spacing: -0.01em; margin-bottom: 1rem;
+  padding-left: 1rem; border-left: 3px solid var(--accent);
+}
+p { font-size: 1rem; font-weight: 300; color: #3D4557; margin-bottom: 1.1rem; }
+strong { font-weight: 700; color: var(--ink); }
+
+/* ── [조건 적용] 첨부 이미지 배치 스타일 ── */
+.article-image-block {
+  margin: 3rem 0;
+  text-align: center;
+}
+.article-image {
+  max-width: 100%;
+  height: auto;
+  border: 1px solid var(--rule);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+}
+.image-caption {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  color: #8E97A8;
+  margin-top: 1rem;
+  letter-spacing: 0.05em;
+}
+
+/* ── PULL QUOTE ── */
+.pull-quote {
+  margin: 3rem -1rem; padding: 2.2rem 2.5rem;
+  background: var(--accent2); color: #e8e0d0;
+  position: relative; overflow: hidden;
+}
+.pull-quote::before {
+  content: '"'; position: absolute;
+  top: -0.6rem; left: 1.2rem;
+  font-size: 9rem; font-weight: 700;
+  color: rgba(255,255,255,0.06); line-height: 1; pointer-events: none;
+}
+.pull-quote p {
+  font-size: 1.2rem; font-weight: 400;
+  color: #dcd4c6; line-height: 1.75;
+  margin: 0; position: relative; z-index: 1;
+}
+
+/* ── TERM BOX ── */
+.term-box {
+  background: #EDF2F7; border: 1px solid var(--rule);
+  padding: 1.8rem 2rem; margin: 2.5rem 0; position: relative;
+}
+.term-box::before {
+  content: 'RESEARCH INSIGHT'; font-family: var(--mono);
+  font-size: 0.6rem; letter-spacing: 0.2em;
+  color: var(--accent); display: block; margin-bottom: 0.8rem;
+}
+.term-box h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--accent2); }
+.term-box p { font-size: 0.92rem; margin: 0; color: #3D4557; }
+
+/* ── FLOW DIAGRAM ── */
+.diagram { margin: 2.5rem 0; font-family: var(--mono); }
+.diagram-title {
+  font-size: 0.65rem; letter-spacing: 0.2em;
+  text-transform: uppercase; color: #8E97A8; margin-bottom: 1rem;
+}
+.flow-steps { display: flex; flex-direction: column; gap: 0; }
+.flow-step { display: flex; align-items: stretch; gap: 1rem; }
+.step-line { display: flex; flex-direction: column; align-items: center; width: 28px; flex-shrink: 0; }
+.step-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); flex-shrink: 0; margin-top: 4px; }
+.step-connector { width: 1px; flex: 1; background: var(--rule); margin: 3px 0; }
+.flow-step:last-child .step-connector { display: none; }
+.step-content { padding-bottom: 1.4rem; flex: 1; }
+.step-label { font-size: 0.65rem; letter-spacing: 0.15em; color: var(--accent); text-transform: uppercase; }
+.step-desc { font-size: 0.82rem; color: #3D4557; line-height: 1.55; margin-top: 0.2rem; }
+
+/* ── GLOSSARY ── */
+.glossary-section { margin-bottom: 2.8rem; }
+.glossary-section h2 { margin-bottom: 1.4rem; }
+.glossary-item { padding: 1rem 0; border-bottom: 1px solid var(--rule); }
+.glossary-item:last-child { border-bottom: none; }
+.glossary-term { font-family: var(--mono); font-size: 0.88rem; font-weight: 700; color: var(--accent2); margin-bottom: 0.2rem; }
+.glossary-def { font-size: 0.9rem; color: #3D4557; line-height: 1.7; margin: 0; }
+
+/* ── FOOTER ── */
+footer { margin-top: 5rem; padding: 2rem 0 4rem; border-top: 1px solid var(--rule); }
+.footer-inner { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+.footer-brand { font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: #8E97A8; }
+
+/* ── ANIMATIONS ── */
+.fade-in { 
+  -webkit-animation: fadeUp 0.7s ease forwards;
+  animation: fadeUp 0.7s ease forwards;
+  -webkit-animation-fill-mode: both;
+  animation-fill-mode: both;
+}
+@-webkit-keyframes fadeUp { 
+  0% { opacity: 0; -webkit-transform: translateY(18px); transform: translateY(18px); }
+  100% { opacity: 1; -webkit-transform: translateY(0); transform: translateY(0); }
+}
+@keyframes fadeUp { 
+  0% { opacity: 0; -webkit-transform: translateY(18px); transform: translateY(18px); }
+  100% { opacity: 1; -webkit-transform: translateY(0); transform: translateY(0); }
+}
+
+hr.section-rule { border: none; border-top: 1px solid var(--rule); margin: 2.5rem 0; }
+
+@media (max-width: 520px) {
+  .pull-quote { margin: 2.5rem -2rem; padding: 1.8rem 1.8rem; }
+  .headline { font-size: 2.2rem; }
+}
+</style>
+</head>
+<body>
+<div class="page-wrap">
+
+<header>
+<div class="fade-in">
+<span class="kicker">AI · Productivity · Cognitive Health</span>
+<h1 class="headline">AI 브레인 프라이
+
+
+: <em>생존하기</em></h1>
+<p class="subhead">업무 생산성의 역설과
+
+
+과열된 인지 부하를 식히는 HBR 연구 기반 솔루션</p>
+<div class="byline-row">
+<span class="byline-tag">Research Review</span>
+<span class="dot">·</span>
+<span class="byline-tag">HBR Insights</span>
+<span class="dot">·</span>
+<span class="byline-tag">2026</span>
+<span class="dot">·</span>
+<span class="byline-tag">by Editorial Team</span>
+</div>
+</div>
+</header>
+
+<main>
+
+<div class="lead-block fade-in">
+  <span class="lead-letter">A</span>
+  <p class="lead-text">I가 우리를 대신해 일을 처리해 주면 워라밸이 좋아질 것이라는 장밋빛 기대와 달리, 현실의 직장인들은 퇴근 무렵 뇌가 하얗게 타버린 것 같은 피로감을 호소합니다. 하버드 비즈니스 리뷰(HBR)에 발표된 최신 연구들은 이 현상을 과학적으로 조명합니다. **&lt;AI Doesn't Reduce Work—It Intensifies It (AI는 업무를 줄여주지 않는다, 오히려 심화시킬 뿐이다)&gt;**라는 제목이 시사하듯, 도구의 진화가 인간 인지력의 진화를 의미하지는 않습니다.</p>
+</div>
+
+<section>
+  <h2>1. 원인 분석 : 왜 내 뇌는 프라이팬 위에 있는가?</h2>
+  <p>HBR의 또 다른 연구, **&lt;When Using AI Leads to "Brain Fry" (AI 사용이 '브레인 프라이'로 이어질 때)&gt;**는 우리의 뇌를 과열시키는 구체적인 인지적 메커니즘을 밝혀냅니다. AI가 도출한 결과물을 인간은 끊임없이 **검증(Verification Burden)**해야 하며, 이 '강도 높은 감독' 과정은 단순 작업보다 더 많은 에너지를 소모합니다.</p>
+  <p>또한, 여러 AI 도구를 동시에 띄워놓고 일하는 **도구 멀티태스킹**은 인지 용량을 한계치까지 밀어붙입니다. 연구에 따르면, 3~4개 이상의 도구를 동시에 다룰 때 인지 피로는 급증하고 오히려 생산성은 떨어집니다.</p>
+</section>
+
+<div class="article-image-block fade-in">
+  <img src="image_0.png" alt="Information overload causing the human brain to fry in a skillet." class="article-image">
+  <p class="image-caption">[그림 1] 디지털 정보 과부하와 AI 어시스턴트의 끊임없는 알림으로 인해 프라이팬 위에서 과열되고 있는 인간의 인지 부하 상태.</p>
+</div>
+
+<div class="pull-quote fade-in">
+  <p>AI 덕분에 일이 빨리 끝나면 우리는 쉬는 것이 아니라, 그 빈자리에 더 많은 자잘한 업무를 채워 넣습니다. 이것이 바로 **'무의식적인 업무량 팽창(Workload Creep)'**이며, 우리 뇌를 쉬지 못하게 하는 주범입니다.</p>
+</div>
+
+<section>
+  <h2>2. 쿨링 전략 : 과열된 두뇌를 식히는 법</h2>
+  <p>AI 도구를 버려야 한다는 것이 아닙니다. 핵심은 의도적인 **'인지적 다이어트'**에 있습니다. 무작정 빠른 속도만 쫓는 대신, 인간의 고유한 판단 영역을 확보해야 합니다.</p>
+</section>
+
+<div class="diagram fade-in">
+  <p class="diagram-title">HBR 추천 : 인지 건강 생존 3단계</p>
+  <div class="flow-steps">
+    <div class="flow-step">
+      <div class="step-line"><div class="step-dot"></div><div class="step-connector"></div></div>
+      <div class="step-content">
+        <div class="step-label">Step 01 · AI 도구 미니멀리즘</div>
+        <div class="step-desc">자신의 인지 용량은 유한합니다. 하루에 사용하는 AI 도구의 수를 가장 핵심적인 1~2개로 제한하여 도구 전환 비용을 최소화하세요.</div>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="step-line"><div class="step-dot"></div><div class="step-connector"></div></div>
+      <div class="step-content">
+        <div class="step-label">Step 02 · '인간 관점'의 의도적 일시 정지</div>
+        <div class="step-desc">AI 결과를 즉각 적용하기 전, 의식적으로 화면에서 눈을 떼고 인간의 맥락에서 판단하는 (Human grounding) pause 타임을 가져야 합니다.</div>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="step-line"><div class="step-dot"></div></div>
+      <div class="step-content">
+        <div class="step-label">Step 03 · 반복 업무에만 역할 제한</div>
+        <div class="step-desc">AI를 복잡한 관리 업무가 아닌, 단순하고 반복적인 루틴 작업에 한정하여 활용할 때 번아웃 수치가 유의미하게 감소했습니다.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<section>
+  <h2>결론 : 진짜 경쟁력은 맑은 뇌에 있다</h2>
+  <p>AI는 강력한 무기지만, 그 무기를 휘두르는 주체의 체력(인지력)이 바닥나면 소용이 없습니다. 쏟아지는 정보 속에서 최종 결정을 내리는 것은 결국 인간의 몫입니다. 혁신적인 도구에 휩쓸려 스스로의 인지력을 '프라이(Fry)'하지 마십시오. 스마트한 도구 사용법보다 더 중요한 것은, 끄떡없는 당신의 인지적 건강입니다.</p>
+</section>
+
+<hr class="section-rule">
+
+<section class="glossary-section">
+  <h2>용어 기반 인사이트</h2>
+  <div class="glossary-item">
+    <div class="glossary-term">브레인 프라이 (Brain Fry)</div>
+    <p class="glossary-def">HBR 연구에서 사용된 용어로, 과도한 인지적 요구사항(검증 부담, 멀티태스킹 등)으로 인해 뇌가 더 이상 효율적으로 정보를 처리하지 못하고 마비되거나 과열된 상태를 뜻합니다.</p>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">업무량 팽창 (Workload Creep)</div>
+    <p class="glossary-def">AI가 특정 업무의 효율을 높여 시간을 단축시켜 주면, 조직이나 개인은 그 단축된 시간만큼 휴식하는 대신 새로운 다른 업무로 그 시간을 채워 넣어 결과적으로 총 업무량이 계속해서 늘어나는 현상입니다.</p>
+  </div>
+</section>
+</main>
+
+<footer>
+<div class="footer-inner">
+<span class="footer-brand">Research Insight Series : Productivity Hypotheses</span>
+</div>
+</footer>
+
+</div>
+</body>
+</html>
