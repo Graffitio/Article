@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI에게 웹을 먹이는 법 : r.jina.ai, 번역기가 된 URL</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --ink: #1A1A2E; --paper: #F8F9FA; --warm-mid: #A8BDD4;
+  --accent: #5B7FA6; --accent2: #2B2D42; --rule: #DDE3EA;
+  --serif: 'Noto Serif KR', serif; --mono: 'Space Mono', monospace;
+}
+html { scroll-behavior: smooth; }
+body {
+  background: var(--paper); color: var(--ink);
+  font-family: var(--serif); line-height: 1.9;
+  min-height: 100vh; overflow-x: hidden;
+}
+
+.page-wrap { max-width: 960px; margin: 0 auto; padding: 0 2rem; }
+
+/* ── HEADER ── */
+header { padding: 4rem 0 0; position: relative; }
+.kicker {
+  font-family: var(--mono); font-size: 0.7rem;
+  letter-spacing: 0.25em; text-transform: uppercase;
+  color: var(--accent); display: block; margin-bottom: 1.8rem;
+}
+.headline {
+  font-size: clamp(2.4rem, 6vw, 3.8rem); font-weight: 700;
+  line-height: 1.15; letter-spacing: -0.02em; margin-bottom: 0.4rem;
+}
+.headline em {
+  font-style: normal; color: var(--accent); position: relative;
+}
+.headline em::after {
+  content: ''; position: absolute;
+  left: 0; bottom: 2px; width: 100%; height: 3px;
+  background: var(--accent); opacity: 0.3;
+}
+.subhead {
+  font-family: var(--mono); font-size: 0.72rem; line-height: 1.6;
+  color: #5B6A7E; margin: 1.6rem 0 2rem;
+  max-width: 600px; letter-spacing: 0.05em;
+}
+.byline-row {
+  display: flex; align-items: center; gap: 1.5rem;
+  padding: 1.2rem 0;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  margin-bottom: 3.5rem; flex-wrap: wrap;
+}
+.byline-tag {
+  font-family: var(--mono); font-size: 0.65rem;
+  letter-spacing: 0.18em; text-transform: uppercase; color: #8E97A8;
+}
+.dot { color: var(--warm-mid); }
+
+/* ── LEAD ── */
+.lead-block { position: relative; margin-bottom: 3rem; }
+.lead-text { font-size: 1.12rem; font-weight: 300; color: #3D4557; }
+
+/* ── BODY ── */
+section { margin-bottom: 2.8rem; }
+h2 {
+  font-size: 1.3rem; font-weight: 700;
+  letter-spacing: -0.01em; margin-bottom: 1rem;
+  padding-left: 1rem; border-left: 3px solid var(--accent);
+}
+p { font-size: 1rem; font-weight: 300; color: #3D4557; margin-bottom: 1.1rem; }
+strong { font-weight: 700; color: var(--ink); }
+
+/* ── PULL QUOTE ── */
+.pull-quote {
+  margin: 3rem -1rem; padding: 2.2rem 2.5rem;
+  background: var(--accent2); color: #e8e0d0;
+  position: relative; overflow: hidden;
+}
+.pull-quote::before {
+  content: '"'; position: absolute;
+  top: -0.6rem; left: 1.2rem;
+  font-size: 9rem; font-weight: 700;
+  color: rgba(255,255,255,0.06); line-height: 1; pointer-events: none;
+}
+.pull-quote p {
+  font-size: 1.2rem; font-weight: 400;
+  color: #dcd4c6; line-height: 1.75;
+  margin: 0; position: relative; z-index: 1;
+}
+
+/* ── TERM BOX ── */
+.term-box {
+  background: #EDF2F7; border: 1px solid var(--rule);
+  padding: 1.8rem 2rem; margin: 2.5rem 0; position: relative;
+}
+.term-box::before {
+  content: 'TECH INSIGHT'; font-family: var(--mono);
+  font-size: 0.6rem; letter-spacing: 0.2em;
+  color: var(--accent); display: block; margin-bottom: 0.8rem;
+}
+.term-box h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--accent2); }
+.term-box p { font-size: 0.92rem; margin: 0; color: #3D4557; }
+
+/* ── FLOW DIAGRAM ── */
+.diagram { margin: 2.5rem 0; font-family: var(--mono); }
+.diagram-title {
+  font-size: 0.65rem; letter-spacing: 0.2em;
+  text-transform: uppercase; color: #8E97A8; margin-bottom: 1rem;
+}
+.flow-steps { display: flex; flex-direction: column; gap: 0; }
+.flow-step { display: flex; align-items: stretch; gap: 1rem; }
+.step-line { display: flex; flex-direction: column; align-items: center; width: 28px; flex-shrink: 0; }
+.step-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); flex-shrink: 0; margin-top: 4px; }
+.step-connector { width: 1px; flex: 1; background: var(--rule); margin: 3px 0; }
+.flow-step:last-child .step-connector { display: none; }
+.step-content { padding-bottom: 1.4rem; flex: 1; }
+.step-label { font-size: 0.65rem; letter-spacing: 0.15em; color: var(--accent); text-transform: uppercase; }
+.step-desc { font-size: 0.82rem; color: #3D4557; line-height: 1.55; margin-top: 0.2rem; }
+
+/* ── COMPARE TABLE ── */
+.compare-table {
+  width: 100%; border-collapse: collapse;
+  margin: 2rem 0; font-size: 0.88rem;
+}
+.compare-table th {
+  font-family: var(--mono); font-size: 0.62rem;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--accent); text-align: left;
+  padding: 0.7rem 1rem; border-bottom: 2px solid var(--accent);
+}
+.compare-table td {
+  padding: 0.75rem 1rem; border-bottom: 1px solid var(--rule);
+  color: #3D4557; vertical-align: top; line-height: 1.6;
+}
+.compare-table tr:last-child td { border-bottom: none; }
+.compare-table td:first-child {
+  font-family: var(--mono); font-size: 0.8rem;
+  font-weight: 700; color: var(--accent2); white-space: nowrap;
+}
+
+/* ── CODE BLOCK ── */
+.code-block {
+  background: var(--accent2); border-radius: 2px;
+  padding: 1.4rem 1.8rem; margin: 1.8rem 0;
+  overflow-x: auto;
+}
+.code-label {
+  font-family: var(--mono); font-size: 0.58rem;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  color: rgba(255,255,255,0.35); margin-bottom: 0.7rem;
+}
+.code-block code {
+  font-family: var(--mono); font-size: 0.82rem;
+  color: #b8d4f0; line-height: 1.7; white-space: pre;
+}
+
+/* ── RATE TABLE ── */
+.rate-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 1rem; margin: 2rem 0;
+}
+.rate-card {
+  border: 1px solid var(--rule);
+  padding: 1.3rem 1.4rem;
+}
+.rate-tier {
+  font-family: var(--mono); font-size: 0.6rem;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--accent); margin-bottom: 0.6rem;
+}
+.rate-num {
+  font-size: 1.3rem; font-weight: 700;
+  color: var(--ink); line-height: 1.2; margin-bottom: 0.2rem;
+}
+.rate-unit {
+  font-family: var(--mono); font-size: 0.65rem;
+  color: #8E97A8;
+}
+
+/* ── GLOSSARY ── */
+.glossary-section { margin-bottom: 2.8rem; }
+.glossary-section h2 { margin-bottom: 1.4rem; }
+.glossary-item { padding: 1rem 0; border-bottom: 1px solid var(--rule); }
+.glossary-item:last-child { border-bottom: none; }
+.glossary-term { font-family: var(--mono); font-size: 0.88rem; font-weight: 700; color: var(--accent2); margin-bottom: 0.2rem; }
+.glossary-def { font-size: 0.9rem; color: #3D4557; line-height: 1.7; margin: 0; }
+
+/* ── FOOTER ── */
+footer { margin-top: 5rem; padding: 2rem 0 4rem; border-top: 1px solid var(--rule); }
+.footer-inner { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+.footer-brand { font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: #8E97A8; }
+
+/* ── ANIMATIONS ── */
+.fade-in {
+  -webkit-animation: fadeUp 0.7s ease forwards;
+  animation: fadeUp 0.7s ease forwards;
+  -webkit-animation-fill-mode: both;
+  animation-fill-mode: both;
+}
+@-webkit-keyframes fadeUp {
+  0% { opacity: 0; -webkit-transform: translateY(18px); transform: translateY(18px); }
+  100% { opacity: 1; -webkit-transform: translateY(0); transform: translateY(0); }
+}
+@keyframes fadeUp {
+  0% { opacity: 0; -webkit-transform: translateY(18px); transform: translateY(18px); }
+  100% { opacity: 1; -webkit-transform: translateY(0); transform: translateY(0); }
+}
+
+hr.section-rule { border: none; border-top: 1px solid var(--rule); margin: 2.5rem 0; }
+
+@media (max-width: 640px) {
+  .pull-quote { margin: 2.5rem -2rem; padding: 1.8rem 1.8rem; }
+  .headline { font-size: 2.2rem; }
+  .rate-grid { grid-template-columns: 1fr; }
+  .compare-table { font-size: 0.82rem; }
+  .compare-table td, .compare-table th { padding: 0.6rem 0.7rem; }
+}
+</style>
+</head>
+<body>
+<div class="page-wrap">
+
+<header>
+  <div class="fade-in">
+    <span class="kicker">AI Tools · Web Scraping · Developer Productivity</span>
+    <h1 class="headline">URL 한 줄이 <em>번역기가 된다</em></h1>
+    <p class="subhead">웹의 언어를 AI의 언어로 — r.jina.ai가 바꾼 정보 수집의 공식</p>
+    <div class="byline-row">
+      <span class="byline-tag">Tool Review</span>
+      <span class="dot">·</span>
+      <span class="byline-tag">Jina AI Reader API</span>
+      <span class="dot">·</span>
+      <span class="byline-tag">2026</span>
+      <span class="dot">·</span>
+      <span class="byline-tag">by Editorial Team</span>
+    </div>
+  </div>
+</header>
+
+<main>
+
+<div class="lead-block fade-in">
+  <p class="lead-text">ChatGPT나 Claude에 "이 사이트 좀 읽어봐"라고 URL을 던졌을 때, AI가 돌아오는 대답이 어딘가 어긋난다면 — 당신의 의심이 맞습니다. AI는 HTML 태그, 광고 배너, 네비게이션 메뉴가 뒤섞인 원시 데이터를 그대로 삼키고 있고, 그 잡음 속에서 진짜 본문을 찾아야 합니다. 이 구조적인 문제를 URL 앞에 단 하나의 접두어를 붙이는 것만으로 해결한 서비스가 있습니다. Jina AI가 만든 <strong>Reader API, r.jina.ai</strong>입니다.</p>
+</div>
+
+<section>
+  <h2>1. 문제의 본질 : AI는 웹을 읽지 못한다</h2>
+  <p>현대 웹페이지의 HTML 중 실제 본문이 차지하는 비율은 생각보다 낮습니다. 대부분은 스크립트, 스타일시트, 광고 태그, 소셜 공유 버튼, 무한 스크롤 컴포넌트가 뒤엉킨 구조입니다. 게다가 React나 Vue 같은 SPA(싱글 페이지 앱) 방식으로 구축된 사이트는 JavaScript가 실행되기 전까지 본문 자체가 존재하지 않습니다.</p>
+  <p>이 상황에서 AI에게 URL을 주면 어떻게 될까요. 컨텍스트 윈도우는 의미 없는 마크업으로 가득 차고, 모델은 정작 중요한 내용에 집중하지 못합니다. 정보가 없는 게 아니라, 너무 많은 잡음 속에 묻혀버린 겁니다.</p>
+</section>
+
+<div class="pull-quote fade-in">
+  <p>웹 데이터를 AI에게 먹이는 일의 진짜 장벽은 접근성이 아니라 <strong>가독성</strong>이었습니다. r.jina.ai는 그 번역 계층을 URL 한 줄로 대체했습니다.</p>
+</div>
+
+<section>
+  <h2>2. 작동 방식 : Puppeteer가 읽고, 모델이 정제한다</h2>
+  <p>r.jina.ai에 URL을 전달하면 내부적으로 Puppeteer와 헤드리스 크롬이 해당 페이지를 실제로 렌더링합니다. JavaScript가 실행되고, SPA도 완전히 로딩된 상태의 DOM을 기준으로 본문을 추출합니다. 결과는 광고, 헤더, 푸터, 사이드바가 제거된 <strong>순수 마크다운</strong>으로 반환됩니다.</p>
+  <p>웹페이지에 그치지 않습니다. PDF URL을 넣으면 다단 구조 논문이나 이미지 중심 문서에서도 텍스트를 추출하고, 페이지 내 이미지는 비전-언어 모델로 분석해 설명까지 마크다운에 포함시킵니다. AI가 "이 페이지에 어떤 시각 정보가 있었는지"까지 파악할 수 있게 되는 것입니다.</p>
+</section>
+
+<div class="diagram fade-in">
+  <p class="diagram-title">r.jina.ai 처리 흐름</p>
+  <div class="flow-steps">
+    <div class="flow-step">
+      <div class="step-line"><div class="step-dot"></div><div class="step-connector"></div></div>
+      <div class="step-content">
+        <div class="step-label">Step 01 · URL 수신</div>
+        <div class="step-desc">https://r.jina.ai/{대상 URL} 형태로 요청을 받습니다. 웹페이지, PDF, 이미지 포함 문서 모두 지원합니다.</div>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="step-line"><div class="step-dot"></div><div class="step-connector"></div></div>
+      <div class="step-content">
+        <div class="step-label">Step 02 · 헤드리스 브라우저 렌더링</div>
+        <div class="step-desc">내부적으로 Puppeteer와 헤드리스 크롬이 실행됩니다. JavaScript 렌더링, SPA, iframe, Shadow DOM까지 완전히 처리한 DOM 스냅샷을 확보합니다.</div>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="step-line"><div class="step-dot"></div><div class="step-connector"></div></div>
+      <div class="step-content">
+        <div class="step-label">Step 03 · 노이즈 제거 및 구조 추출</div>
+        <div class="step-desc">광고, 네비게이션, 스크립트, 스타일시트를 제거하고 본문과 구조적 요소만 남깁니다. 이미지는 비전-언어 모델로 캡셔닝됩니다.</div>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="step-line"><div class="step-dot"></div></div>
+      <div class="step-content">
+        <div class="step-label">Step 04 · 마크다운 반환</div>
+        <div class="step-desc">AI가 바로 소화할 수 있는 깔끔한 마크다운 텍스트로 결과를 돌려줍니다. JSON 응답도 헤더 한 줄로 전환 가능합니다.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<section>
+  <h2>3. 어디에 쓰는가 : 세 가지 핵심 활용 시나리오</h2>
+  <p><strong>즉석 기사 요약.</strong> AI에게 특정 기사나 문서를 읽히고 싶을 때, 해당 URL을 r.jina.ai로 감싸 결과를 복사해 붙여넣으면 됩니다. HTML을 통째로 붙여넣는 방식과 비교하면 이해 정확도가 눈에 띄게 달라집니다.</p>
+  <p><strong>RAG 파이프라인 전처리.</strong> 웹에서 수집한 데이터를 벡터DB에 적재할 때, 가장 손이 많이 가는 단계가 텍스트 정제입니다. r.jina.ai는 이 전처리 과정을 API 호출 한 번으로 대체합니다. 파이프라인의 복잡도를 줄이고 싶다면 가장 먼저 도입을 검토할 만한 도구입니다.</p>
+  <p><strong>AI 에이전트의 웹 탐색.</strong> 에이전트가 웹을 순회하며 정보를 수집하는 과정에서 생 HTML 파싱은 취약점 투성이입니다. r.jina.ai를 경유하면 에이전트는 항상 안정적인 마크다운 입력을 받을 수 있고, 예외 처리 코드도 대폭 줄어듭니다.</p>
+</section>
+
+<div class="term-box fade-in">
+  <h3>s.jina.ai : 검색 + 콘텐츠 추출을 한 번에</h3>
+  <p>단일 페이지 읽기가 아닌 웹 검색이 필요할 때는 s.jina.ai 엔드포인트를 씁니다. 검색 쿼리를 넣으면 상위 5개 결과의 URL, 제목, 그리고 각 페이지의 <strong>본문 전체</strong>를 마크다운으로 변환해 반환합니다. 일반 검색 API가 제목과 짧은 스니펫만 주는 것과 달리, 검색과 콘텐츠 추출이 단일 요청으로 완결됩니다. 특정 사이트 내 검색은 site 파라미터로 범위를 좁힐 수 있습니다.</p>
+</div>
+
+<section>
+  <h2>4. 고급 제어 : 헤더로 다루는 여섯 가지 옵션</h2>
+  <p>기본 동작만으로도 충분한 경우가 많지만, 헤더를 통한 세밀한 제어도 지원합니다.</p>
+  <p><strong>변환 품질 향상.</strong> <code>x-respond-with: readerlm-v2</code> 헤더를 추가하면 Jina의 자체 소형 언어 모델이 HTML-마크다운 변환을 처리합니다. 구조가 복잡한 사이트에서 품질 향상이 두드러지며, 이전 버전 대비 3배 개선됐다고 알려져 있습니다.</p>
+  <p><strong>구조화된 데이터 추출.</strong> <code>x-json-schema</code> 헤더에 JSON 스키마를 정의하면 가격, 날짜, 제목처럼 원하는 필드만 골라 반환받을 수 있습니다. 자연어로 지시하고 싶다면 <code>x-instruction</code> 헤더를 쓰면 됩니다.</p>
+  <p><strong>동적 콘텐츠 대응.</strong> <code>x-wait-for-selector</code>에 CSS 셀렉터를 지정하면, 해당 요소가 렌더링된 후에야 결과를 반환합니다. 지연 로딩 콘텐츠를 놓치는 문제를 해결합니다. 반대로 <code>x-remove-selector</code>로 헤더, 푸터, 사이드바 같은 영역을 사전에 제거하는 것도 가능합니다.</p>
+  <p><strong>토큰 예산 관리.</strong> <code>x-token-budget</code>으로 최대 토큰 수를 지정할 수 있어 LLM 컨텍스트 윈도우를 효율적으로 활용할 수 있습니다.</p>
+</section>
+
+<div class="code-block fade-in">
+  <div class="code-label">예시 · curl 기본 사용법</div>
+  <code># 웹페이지를 마크다운으로 읽기
+curl https://r.jina.ai/https://example.com
+
+# JSON 형식으로 받기
+curl -H "Accept: application/json" \
+     https://r.jina.ai/https://example.com
+
+# 특정 필드만 구조화 추출
+curl -H 'x-instruction: 제목과 날짜만 추출해줘' \
+     https://r.jina.ai/https://example.com</code>
+</div>
+
+<section>
+  <h2>5. 요금 구조 : 무료로 시작해 프로덕션까지</h2>
+  <p>가입 없이 브라우저 주소창에 직접 입력하는 것만으로도 즉시 사용할 수 있습니다. API 키 없이도 분당 100건 처리가 가능하며, 무료 API 키를 발급받으면 1천만 토큰이 제공됩니다.</p>
+</section>
+
+<div class="rate-grid fade-in">
+  <div class="rate-card">
+    <div class="rate-tier">Free (No Key)</div>
+    <div class="rate-num">100<span style="font-size:0.9rem; font-weight:400">/분</span></div>
+    <div class="rate-unit">동시 요청 2건 · 분당 10만 토큰</div>
+  </div>
+  <div class="rate-card">
+    <div class="rate-tier">API Key (무료 발급)</div>
+    <div class="rate-num">500<span style="font-size:0.9rem; font-weight:400">/분</span></div>
+    <div class="rate-unit">동시 요청 50건 · 분당 200만 토큰 · 1천만 토큰 지급</div>
+  </div>
+  <div class="rate-card">
+    <div class="rate-tier">Premium</div>
+    <div class="rate-num">5,000<span style="font-size:0.9rem; font-weight:400">/분</span></div>
+    <div class="rate-unit">동시 요청 500건 · 분당 5천만 토큰</div>
+  </div>
+</div>
+
+<section>
+  <h2>6. 비슷한 도구들과의 비교</h2>
+  <p>유사한 목적의 도구들이 존재하지만, 각자 강점이 다릅니다.</p>
+  <table class="compare-table">
+    <thead>
+      <tr>
+        <th>도구</th>
+        <th>핵심 강점</th>
+        <th>r.jina.ai와의 차이</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Firecrawl</td>
+        <td>사이트 전체 크롤링, 서브페이지 일괄 수집에 강함. 속도 우수.</td>
+        <td>대규모 크롤링에는 Firecrawl, 단일 페이지 정밀 추출에는 r.jina.ai가 적합합니다.</td>
+      </tr>
+      <tr>
+        <td>Bright Data</td>
+        <td>안티봇, 로그인 필요 사이트, JavaScript 무거운 산업용 환경 특화.</td>
+        <td>r.jina.ai가 처리하기 어려운 고난도 차단 환경을 다룹니다. 그만큼 진입 비용도 높습니다.</td>
+      </tr>
+      <tr>
+        <td>r.jina.ai</td>
+        <td>설치·가입 없음. URL 접두어 한 줄. PDF·이미지 캡셔닝·구조화 추출까지 지원.</td>
+        <td>진입 장벽이 가장 낮고, 개인 사용부터 RAG 파이프라인까지 범용으로 활용 가능합니다.</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<div class="pull-quote fade-in">
+  <p>MCP 서버로도 활용 가능합니다. Claude Code, Cursor, VS Code Copilot에 Jina AI 공식 MCP 서버를 연결하면, 에이전트가 웹을 읽어야 하는 순간마다 자동으로 r.jina.ai 경유 마크다운을 받아옵니다. <strong>도구를 쓰는 것이 아니라, 도구가 되는 것입니다.</strong></p>
+</div>
+
+<section>
+  <h2>결론 : 웹과 AI 사이의 마찰을 없앤다는 것</h2>
+  <p>AI 에이전트 시대에 가장 반복적으로 등장하는 작업이 "웹에서 정보를 가져오는 것"임에도, 웹은 본질적으로 AI에게 친절한 구조가 아닙니다. 이 마찰을 낮추는 일은 프롬프트 엔지니어링과는 다른 종류의 문제입니다. 데이터가 모델에 도달하기 전 단계, 즉 입력의 품질 자체를 높이는 작업입니다.</p>
+  <p>r.jina.ai는 그 작업을 URL 한 줄로 압축해냈습니다. 설치도, 가입도, 설정도 없이. 브라우저 주소창에 <code>r.jina.ai/</code>를 붙이는 것만으로 누구나 즉시 확인할 수 있습니다. 단순함이 곧 도구의 완성도를 증명합니다.</p>
+</section>
+
+<hr class="section-rule">
+
+<section class="glossary-section">
+  <h2>용어 기반 인사이트</h2>
+  <div class="glossary-item">
+    <div class="glossary-term">Reader API (리더 API)</div>
+    <p class="glossary-def">Jina AI가 개발한 웹 콘텐츠 추출 서비스입니다. 임의의 웹 URL이나 PDF를 받아 광고, 마크업, 스크립트 등의 노이즈를 제거하고 본문만을 LLM 친화적인 마크다운 형식으로 변환해 반환합니다.</p>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">RAG (Retrieval-Augmented Generation)</div>
+    <p class="glossary-def">LLM이 외부 데이터베이스에서 관련 정보를 검색해 답변 생성에 활용하는 아키텍처입니다. 웹 기반 RAG 파이프라인에서는 수집 데이터의 정제 품질이 검색 정확도와 생성 품질 모두에 직접적인 영향을 미칩니다. r.jina.ai는 이 전처리 단계를 단순화합니다.</p>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">헤드리스 브라우저 (Headless Browser)</div>
+    <p class="glossary-def">화면 출력 없이 백그라운드에서 실행되는 웹 브라우저입니다. JavaScript 렌더링이 필요한 SPA나 동적 콘텐츠를 실제 브라우저와 동일하게 처리할 수 있어, 단순 HTTP 요청으로는 수집이 불가능한 페이지도 완전한 DOM을 추출할 수 있습니다.</p>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">MCP (Model Context Protocol)</div>
+    <p class="glossary-def">AI 모델과 외부 도구·서비스를 표준화된 방식으로 연결하는 프로토콜입니다. Jina AI는 공식 MCP 서버를 제공하며, 이를 통해 Claude Code나 Cursor 같은 AI 코딩 도구가 웹 읽기 작업 시 자동으로 Reader API를 경유하도록 구성할 수 있습니다.</p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="footer-inner">
+    <span class="footer-brand">Research Insight Series : AI Tools & Infrastructure</span>
+  </div>
+</footer>
+
+</div>
+</body>
+</html>
